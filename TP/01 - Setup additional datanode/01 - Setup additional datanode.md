@@ -258,31 +258,25 @@ start "Apache Hadoop Distribution - datanode_3" hdfs datanode -conf .\etc\hadoop
 
 ## Interact with the File System
 
-Let's first create a directory:
+Download a local copy of the following link:
+
+- http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
+
+Unzip the file into your HADOOP HOME directory.
+
+Now, let's import:
 
 ```sh
-.\bin\hdfs dfs -mkdir /config
-```
-
-Now let's copy the configuration file into it
-
-```sh
-.\bin\hdfs dfs -put %HADOOP_HOME%\etc\hadoop\*.xml /config
+.\bin\hdfs dfs -put "%HADOOP_HOME%\1500000 Sales Records.csv" "/1500000 Sales Records.1.csv"
 ```
 
 And finally, let's check the files are here:
 
 ```sh
-.\bin\hdfs dfs -ls /config
+.\bin\hdfs dfs -ls /
 ```
 
-Visualize one:
-
-```sh
-hdfs dfs -cat /config/yarn-site.xml
-```
-
-## Get the NameNode
+## Access the NameNode
 
 You can also get details about HDFS and the NameNode using the following URL:
 
@@ -292,32 +286,4 @@ And access the file system:
 
  - http://localhost:50070/explorer.html#/
 
----
-
-## Extra
-
-### Reset your Hadoop Git repository
-
-If you want to reset your local copy of the Hadoop GIT repo, you can run the following series of commands:
-
-```
-cd C:\MyWork\hadoop-common
-git reset --hard
-git clean -f -d
-git pull -f
-```
-
-### Documentation generation
-
-Since Java 1.8, the syntax to generate the doc has become more strict which will make to build to fail.
-
-However if you want to get the documentation generate, you can check the following article:
-
-  - https://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
-
-It will require to add the following configuration properties to every occurrences of the **maven-javadoc-plugin** artificat in all pom.xml files.
-```
-<properties>
-    <additionalparam>-Xdoclint:none</additionalparam>
-</properties>
-```
+You can also explore the "data" stored in the windows explorer at: C:\MyWork\hadoop-3.0.0-SNAPSHOT\tmp
