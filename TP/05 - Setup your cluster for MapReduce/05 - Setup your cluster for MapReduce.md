@@ -7,6 +7,38 @@ You will need to have a Hadoop tar ball extracted and properly configured in:
 ```sh
 C:\MyWork\hadoop
 ```
+## Extend the environment variables
+
+If not done yet, you will update the following file:
+
+```sh
+C:\MyWork\hadoop\etc\hadoop\yarn-env.cmd
+```
+
+Locate the following line:
+
+```
+@rem Set Hadoop-specific environment variables here.
+```
+
+and add the following content right after:
+
+```sh
+set HADOOP_HOME=C:\MyWork\hadoop-3.0.0-SNAPSHOT
+
+set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
+set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
+
+set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
+set PATH=%PATH%;%HADOOP_BIN_PATH%
+
+set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
+
+set HADOOP_YARN_HOME=%HADOOP_HOME%
+
+set YARN_OPTS=%YARN_OPTS% -Dyarn.home=%HADOOP_YARN_HOME%
+set YARN_OPTS=%YARN_OPTS% -Dhadoop.home=%HADOOP_HOME%
+```
 
 ## Configure the default mapred-site.xml file
 
@@ -102,6 +134,7 @@ Execute the following commands:
 ```
 notepad "%HADOOP_HOME%\etc\hadoop\master\capacity-scheduler.xml
 ```
+
 Replace the file content with:
 
 ```
@@ -115,6 +148,28 @@ Replace the file content with:
 		<name>yarn.scheduler.capacity.root.default.capacity</name>
 		<value>100</value>
 	</property>
+</configuration>
+```
+
+Execute the following commands:
+
+```
+copy "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop\master\core-site.xml"
+notepad "%HADOOP_HOME%\etc\hadoop\master\core-site.xml"
+```
+
+Replace the file content with:
+
+```
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://host-namenode:9000</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/${hadoop.home}/tmp/master</value>
+    </property>
 </configuration>
 ```
 
@@ -142,8 +197,16 @@ Replace the file content with:
     </property>
     <property>
         <name>yarn.resourcemanager.hostname</name>
-        <value>localhost</value>
+        <value>host-resourcemanager</value>
     </property>
+    <property>
+        <name>yarn.nodemanager.hostname</name>
+        <value>host-nodemanager-1</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>host-resourcemanager</value>
+    </property>		
     <property>
         <name>yarn.nodemanager.localizer.address</name>
         <value>${yarn.nodemanager.hostname}:8140</value>
@@ -192,6 +255,8 @@ notepad "%HADOOP_HOME%\etc\hadoop\slave-2\yarn-site.xml"
 
 Increase the yarn.nodemanager.localizer.address & yarn.nodemanager.webapp.address port numbers (8140 & 8142) by a hundred (=> 8240 & 8242) to make them unique.
 
+Update the yarn.nodemanager.local-dirs too.
+
 Execute the following commands:
 
 ```
@@ -200,6 +265,8 @@ notepad "%HADOOP_HOME%\etc\hadoop\slave-3\yarn-site.xml"
 ```
 
 Increase the yarn.nodemanager.localizer.address & yarn.nodemanager.webapp.address port numbers (8140 & 8142) by 2 hundred (=> 8340 & 8342) to make them unique.
+
+Update the yarn.nodemanager.local-dirs too.
 
 Execute the following commands:
 
@@ -219,6 +286,29 @@ notepad "%HADOOP_HOME%\etc\hadoop\slave-3\mapred-site.xml"
 
 Increase the mapreduce.shuffle.port port numbers (13562) by a 20 thousand (=> 33562) to make them unique.
 
+Execute the following commands:
+
+```
+copy "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop\slave-1\core-site.xml"
+notepad "%HADOOP_HOME%\etc\hadoop\slave-1\core-site.xml"
+```
+
+Update the hadoop.tmp.dir to /${hadoop.home}/tmp/slave-1.
+
+```
+copy "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop\slave-2\core-site.xml"
+notepad "%HADOOP_HOME%\etc\hadoop\slave-2\core-site.xml"
+```
+
+Update the hadoop.tmp.dir to /${hadoop.home}/tmp/slave-2.
+
+```
+copy "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop\slave-3\core-site.xml"
+notepad "%HADOOP_HOME%\etc\hadoop\slave-3\core-site.xml"
+```
+
+Update the hadoop.tmp.dir to /${hadoop.home}/tmp/slave-3.
+
 ## Reinitialize HDFS & Start HDFS daemons
 
 Before starting using the HDFS, you will need to re-format it.
@@ -231,11 +321,7 @@ In a command prompt, execute the following commands to set the environment varia
 %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
 
 cd %HADOOP_HOME%
-```
 
-Then, execute the following commands:
-
-```
 .\bin\hdfs --config %HADOOP_HOME%\etc\hadoop\master namenode -format -force
 ```
 
@@ -256,6 +342,8 @@ start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\had
 In a command prompt, execute the following commands:
 
 ```
+%HADOOP_HOME%\etc\hadoop\yarn-env.cmd
+
 start "Apache Hadoop Distribution - YARN Resource Manager" yarn --config "%HADOOP_HOME%\etc\hadoop\master" resourcemanager
 
 start "Apache Hadoop Distribution - YARN Node Manager 1" yarn --config "%HADOOP_HOME%\etc\hadoop\slave-1" nodemanager
