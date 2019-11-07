@@ -34,21 +34,21 @@ Open a "x64_x86 Native Tools Command Prompt for VS 2019" (from the Start menu) a
 ```sh
 mkdir C:\MyWork
 cd C:\MyWork
-git clone https://github.com/apache/hadoop-common.git C:\MyWork\hadoop-git
+git clone https://github.com/apache/hadoop-common.git C:\MyWork\hadoop-git-2.5.0
 
-cd C:\MyWork\hadoop-git
+cd C:\MyWork\hadoop-git-2.5.0
 git checkout --track origin/branch-2.5.0
 
 ```
 
-This will clone the Git repository on your machine under a folder named **C:\MyWork\hadoop-git**
+This will clone the Git repository on your machine under a folder named **C:\MyWork\hadoop-git-2.5.0**
 
 ## Set the target environment in the POM
 
 Run the following command:
 
 ```sh
-powershell -Command "(gc C:\MyWork\hadoop-git\hadoop-hdfs-project\hadoop-hdfs\pom.xml) -replace 'Visual Studio 10 Win64', 'Visual Studio 16 2019' | Out-File -encoding ASCII C:\MyWork\hadoop-git\hadoop-hdfs-project\hadoop-hdfs\pom.xml"
+powershell -Command "(gc C:\MyWork\hadoop-git-2.5.0\hadoop-hdfs-project\hadoop-hdfs\pom.xml) -replace 'Visual Studio 10 Win64', 'Visual Studio 16 2019' | Out-File -encoding ASCII C:\MyWork\hadoop-git-2.5.0\hadoop-hdfs-project\hadoop-hdfs\pom.xml"
 ```
 
 ## Set the shell executable to sh
@@ -56,7 +56,7 @@ powershell -Command "(gc C:\MyWork\hadoop-git\hadoop-hdfs-project\hadoop-hdfs\po
 Run the following command:
 
 ```sh
-powershell -Command "(gc C:\MyWork\hadoop-git\pom.xml) -replace '<shell-executable>bash</shell-executable>', '<shell-executable>sh</shell-executable>' | Out-File -encoding ASCII C:\MyWork\hadoop-git\pom.xml"
+powershell -Command "(gc C:\MyWork\hadoop-git-2.5.0\pom.xml) -replace '<shell-executable>bash</shell-executable>', '<shell-executable>sh</shell-executable>' | Out-File -encoding ASCII C:\MyWork\hadoop-git-2.5.0\pom.xml"
 ```
 
 ## Set the correct version number
@@ -64,7 +64,7 @@ powershell -Command "(gc C:\MyWork\hadoop-git\pom.xml) -replace '<shell-executab
 Run the following command:
 
 ```sh
-powershell -Command "(gc C:\MyWork\hadoop-git\pom.xml) -replace '<version>3.0.0-SNAPSHOT</version>', '<version>2.5.0</version>' | Out-File -encoding ASCII C:\MyWork\hadoop-git\pom.xml"
+powershell -Command "(gc C:\MyWork\hadoop-git-2.5.0\pom.xml) -replace '<version>3.0.0-SNAPSHOT</version>', '<version>2.5.0</version>' | Out-File -encoding ASCII C:\MyWork\hadoop-git-2.5.0\pom.xml"
 ```
 
 ## Retarget the VS solution files
@@ -76,9 +76,9 @@ However, in the Git repository, older Visual Studio solution files are made avai
 Therefore you will need to "retarget" them using the following commands.
 
 ```sh
-devenv C:\MyWork\hadoop-git\hadoop-common-project\hadoop-common\src\main\native\native.sln /upgrade
+devenv C:\MyWork\hadoop-git-2.5.0\hadoop-common-project\hadoop-common\src\main\native\native.sln /upgrade
 
-devenv C:\MyWork\hadoop-git\hadoop-common-project\hadoop-common\src\main\winutils\winutils.sln /upgrade
+devenv C:\MyWork\hadoop-git-2.5.0\hadoop-common-project\hadoop-common\src\main\winutils\winutils.sln /upgrade
 ```
 
 You can also manually open the SLN file in VS 2019 to apply the configuration you want.
@@ -119,10 +119,11 @@ set PATH=%PATH%;%JAVA_HOME%\bin
 set PATH=%PATH%;%M2_HOME%\bin
 set PATH=%PATH%;%PROTOBUF_ROOT_DIR%
 
-cd C:\MyWork\hadoop-git
+cd C:\MyWork\hadoop-git-2.5.0
 
 mvn clean
 mvn package -gs C:/MyWork/settings.xml -Pdist,native-win -DskipTests -Dtar -Dmaven.javadoc.skip=true
+```
 
 Once the build process completes, you can proceed with the deployment of the generated tar ball.
 
@@ -132,8 +133,8 @@ You should get the following trace/log displayed:
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  03:49 min
-[INFO] Finished at: 2019-11-02T09:14:23+01:00
+[INFO] Total time:  06:07 min
+[INFO] Finished at: 2019-11-07T10:00:42+01:00
 [INFO] ------------------------------------------------------------------------
 ```
 
@@ -142,15 +143,14 @@ You should get the following trace/log displayed:
 The generated tar ball will be stored in the following path (unless you changed some of the parameters):
 
 ```sh
-C:\MyWork\hadoop-git\hadoop-dist\target\hadoop-2.5.0.tar.gz
+C:\MyWork\hadoop-git-2.5.0\hadoop-dist\target\hadoop-2.5.0.tar.gz
 ```
 
 Extract the tar ball using the following commands:
 
 ```sh
-cp C:\MyWork\hadoop-git\hadoop-dist\target\hadoop-2.5.0.tar.gz cd C:\MyWork\hadoop-2.5.0.tar.gz
-
-cd cd C:\MyWork
+copy C:\MyWork\hadoop-git-2.5.0\hadoop-dist\target\hadoop-2.5.0.tar.gz C:\MyWork\hadoop-2.5.0.tar.gz
+cd C:\MyWork
 tar -xvf C:\MyWork\hadoop-2.5.0.tar.gz
 ```
 

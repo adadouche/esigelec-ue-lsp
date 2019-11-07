@@ -1,6 +1,5 @@
 # Upload a larger in HDFS
 
-
 ## Prerequisites
 
 You will need to have a Hadoop tar ball extracted and properly configured in:
@@ -17,12 +16,6 @@ Open a command prompt, then execute the following commands to setup the enironme
 
 ```sh
 set HADOOP_HOME=C:\MyWork\hadoop
-
-set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
-set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
-
-set JAVA_HOME=C:\Progra~1\Java\jdk1.8.0_221
-set PATH=%PATH%;%HADOOP_BIN_PATH%
 
 cd %HADOOP_HOME%
 

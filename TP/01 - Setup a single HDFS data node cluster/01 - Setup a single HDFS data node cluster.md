@@ -32,12 +32,12 @@ set HADOOP_HOME=C:\MyWork\hadoop
 set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
 set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
 
-set JAVA_HOME=C:\Progra~1\Java\jdk1.8.0_221
+set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
 set PATH=%PATH%;%HADOOP_BIN_PATH%
 
 set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
 
-set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS% %HADOOP_OPTS%
+set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS%
 ```
 
 ##### Configure the core-site.xml file
@@ -45,7 +45,7 @@ set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS% %HADOOP_OPTS%
 Open the following file:
 
 ```sh
-C:\MyWork\hadoop\etc/hadoop/core-site.xml
+C:\MyWork\hadoop\etc\hadoop\core-site.xml
 ```
 
 Paste in the following configuration:
@@ -72,7 +72,7 @@ For more details about the configuration file, you can check the following link:
 Open the following file:
 
 ```sh
-C:\MyWork\hadoop\etc/hadoop/hdfs-site.xml
+C:\MyWork\hadoop\etc\hadoop\hdfs-site.xml
 ```
 
 Paste in the following configuration:
@@ -97,14 +97,14 @@ Before starting using the HDFS, you will need to format it.
 In a command prompt, execute the following commands to set the environment variables:
 
 ```
-cd C:\MyWork\hadoop
-
-.\etc\hadoop\hadoop-env.cmd
+C:\MyWork\hadoop\etc\hadoop\hadoop-env.cmd
 ```
 
 Then, execute the following commands:
 
 ```
+cd %HADOOP_HOME%
+
 .\bin\hdfs namenode -format
 ```
 

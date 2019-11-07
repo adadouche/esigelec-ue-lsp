@@ -27,6 +27,15 @@ cd %HADOOP_HOME%
 
 .\etc\hadoop\hadoop-env.cmd
 ```
+## Start HDFS daemons
+
+If not started yet, start the HDFS daemons.
+
+In a command prompt, execute the following commands:
+
+```
+.\sbin\start-dfs.cmd
+```
 
 ## Interact with the File System
 

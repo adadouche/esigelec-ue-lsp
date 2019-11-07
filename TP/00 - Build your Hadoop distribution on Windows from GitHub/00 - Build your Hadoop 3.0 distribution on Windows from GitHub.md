@@ -1,4 +1,4 @@
-# Build your Hadoop 3.2.1 distribution on Windows from GitHub
+# Build your Hadoop 3.0 distribution on Windows from GitHub
 
 ## Prerequisites
 
@@ -38,41 +38,24 @@ Open a "x64_x86 Native Tools Command Prompt for VS 2019" (from the Start menu) a
 ```sh
 mkdir C:\MyWork
 cd C:\MyWork
-git clone https://github.com/apache/hadoop.git C:\MyWork\hadoop-git-latest
+git clone https://github.com/apache/hadoop.git C:\MyWork\hadoop-git-3.0.0
 
-cd C:\MyWork\hadoop-git-latest
-git checkout --track origin/branch-3.2.1
+cd C:\MyWork\hadoop-git-3.0.0
+git checkout --track origin/branch-3.0.0
 ```
 
-This will clone the Git repository on your machine under a folder named **C:\MyWork\hadoop-git-latest**
-
-## Install VCPkg
-
-```sh
-mkdir C:\MyWork
-cd C:\MyWork
-git clone https://github.com/Microsoft/vcpkg.git
-
-cd C:\MyWork\vcpkg
-
-set PATH=%PATH%;C:\MyWork\vcpkg
-
-vcpkg install zlib:x64-windows
-vcpkg install openssl:x64-windows
-
-vcpkg integrate install
-```
+This will clone the Git repository on your machine under a folder named **C:\MyWork\hadoop-git-3.0.0**
 
 ## Set the target environment in the POM
 
 Run the following command:
 
 ```sh
-powershell -Command "(gc C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-hdfs\pom.xml) -replace 'Visual Studio 10 Win64', 'Visual Studio 16 2019' | Out-File -encoding ASCII C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-hdfs\pom.xml"
+powershell -Command "(gc C:\MyWork\hadoop-git-3.0.0\hadoop-hdfs-project\hadoop-hdfs\pom.xml) -replace 'Visual Studio 10 Win64', 'Visual Studio 16 2019' | Out-File -encoding ASCII C:\MyWork\hadoop-git-3.0.0\hadoop-hdfs-project\hadoop-hdfs\pom.xml"
 
-powershell -Command "(gc C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-hdfs-native-client) -replace 'Visual Studio 10 Win64', 'Visual Studio 16 2019' | Out-File -encoding ASCII C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-hdfs-native-client"
+powershell -Command "(gc C:\MyWork\hadoop-git-3.0.0\hadoop-hdfs-project\hadoop-hdfs-native-client\pom.xml) -replace 'Visual Studio 10 Win64', 'Visual Studio 16 2019' | Out-File -encoding ASCII C:\MyWork\hadoop-git-3.0.0\hadoop-hdfs-project\hadoop-hdfs-native-client\pom.xml"
 
-powershell -Command "(gc C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-hdfs-native-client) -replace 'Visual Studio 10', 'Visual Studio 16' | Out-File -encoding ASCII C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-hdfs-native-client"
+powershell -Command "(gc C:\MyWork\hadoop-git-3.0.0\hadoop-hdfs-project\hadoop-hdfs-native-client\pom.xml) -replace 'Visual Studio 10', 'Visual Studio 16' | Out-File -encoding ASCII C:\MyWork\hadoop-git-3.0.0\hadoop-hdfs-project\hadoop-hdfs-native-client\pom.xml"
 ```
 
 ## Set the shell executable to sh
@@ -80,7 +63,7 @@ powershell -Command "(gc C:\MyWork\hadoop-git-latest\hadoop-hdfs-project\hadoop-
 Run the following command:
 
 ```sh
-powershell -Command "(gc C:\MyWork\hadoop-git-latest\pom.xml) -replace '<version>1.8-SNAPSHOT</version>', '<version>1.8</version>' | Out-File -encoding ASCII C:\MyWork\hadoop-git-latest\pom.xml"
+powershell -Command "(gc C:\MyWork\hadoop-git-3.0.0\pom.xml) -replace '<version>1.8-SNAPSHOT</version>', '<version>1.8</version>' | Out-File -encoding ASCII C:\MyWork\hadoop-git-3.0.0\pom.xml"
 ```
 
 ## Set the shell executable to sh
@@ -88,7 +71,7 @@ powershell -Command "(gc C:\MyWork\hadoop-git-latest\pom.xml) -replace '<version
 Run the following command:
 
 ```sh
-powershell -Command "(gc C:\MyWork\hadoop-git-latest\pom.xml) -replace '<shell-executable>bash</shell-executable>', '<shell-executable>sh</shell-executable>' | Out-File -encoding ASCII C:\MyWork\hadoop-git-latest\pom.xml"
+powershell -Command "(gc C:\MyWork\hadoop-git-3.0.0\pom.xml) -replace '<shell-executable>bash</shell-executable>', '<shell-executable>sh</shell-executable>' | Out-File -encoding ASCII C:\MyWork\hadoop-git-3.0.0\pom.xml"
 ```
 
 -- ## Convert to unix the native libs script
@@ -98,8 +81,7 @@ Run the following command:
 ```sh
 set PATH=%PATH%;C:\cygwin64\bin
 
-sh -c "dos2unix /cygdrive/c/MyWork/hadoop-git-latest/dev-support/bin/dist-copynativelibs"
-sh -c "dos2unix /cygdrive/c/MyTools/protoc-3.10.1-win64/include/google/protobuf/compiler/*"
+sh -c "dos2unix /cygdrive/c/MyWork/hadoop-git-3.0.0/dev-support/bin/*"
 ```
 
 ## Retarget the VS solution files
@@ -111,9 +93,9 @@ However, in the Git repository, older Visual Studio solution files are made avai
 Therefore you will need to "retarget" them using the following commands.
 
 ```sh
-devenv C:\MyWork\hadoop-git-latest\hadoop-common-project\hadoop-common\src\main\native\native.sln /upgrade
+devenv C:\MyWork\hadoop-git-3.0.0\hadoop-common-project\hadoop-common\src\main\native\native.sln /upgrade
 
-devenv C:\MyWork\hadoop-git-latest\hadoop-common-project\hadoop-common\src\main\winutils\winutils.sln /upgrade
+devenv C:\MyWork\hadoop-git-3.0.0\hadoop-common-project\hadoop-common\src\main\winutils\winutils.sln /upgrade
 ```
 
 You can also manually open the SLN file in VS 2019 to apply the configuration you want.
@@ -149,12 +131,12 @@ set M2_HOME=C:\MyTools\apache-maven-3.6.2
 set JAVA_HOME=C:\Progra~1\Java\jdk1.8.0_221
 set PROTOBUF_ROOT_DIR=C:/MyTools/protoc-2.5.0-win32
 
-set PATH=%PATH%;C:\cygwin64\bin
+set PATH=C:\cygwin64\bin;%PATH%;
 set PATH=%PATH%;%JAVA_HOME%\bin
 set PATH=%PATH%;%M2_HOME%\bin
-set PATH=%PATH%;%PROTOBUF_ROOT_DIR%/bin
+set PATH=%PATH%;%PROTOBUF_ROOT_DIR%
 
-cd C:\MyWork\hadoop-git-latest
+cd C:\MyWork\hadoop-git-3.0.0
 
 mvn clean
 mvn package -gs C:/MyWork/settings.xml -Pdist,native-win -DskipTests -Dtar -Dmaven.javadoc.skip=true
@@ -178,16 +160,15 @@ You should get the following trace/log displayed:
 The generated tar ball will be stored in the following path (unless you changed some of the parameters):
 
 ```sh
-C:\MyWork\hadoop-git-latest\hadoop-dist\target\hadoop-3.2.1-SNAPSHOT.tar.gz
+C:\MyWork\hadoop-git\hadoop-dist\target\hadoop-3.0.0.tar.gz
 ```
 
 Extract the tar ball using the following commands:
 
 ```sh
-cp C:\MyWork\hadoop-git-latest\hadoop-dist\target\hadoop-3.2.1-SNAPSHOT.tar.gz cd C:\MyWork\hadoop-3.2.1.tar.gz
-
-cd cd C:\MyWork
-tar -xvf C:\MyWork\hadoop-3.2.1.tar.gz
+copy C:\MyWork\hadoop-git\hadoop-dist\target\hadoop-3.0.0.tar.gz C:\MyWork\hadoop.tar.gz
+cd C:\MyWork
+tar -xvf C:\MyWork\hadoop.tar.gz
 ```
 
 ## Extra
@@ -197,7 +178,7 @@ tar -xvf C:\MyWork\hadoop-3.2.1.tar.gz
 In case, you want to reset your local copy of the Hadoop Git repo, you can run the following series of commands:
 
 ```
-cd C:\MyWork\hadoop-git-latest
+cd C:\MyWork\hadoop-git-3.0.0
 
 git reset --hard
 git clean -f -d
