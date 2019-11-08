@@ -25,6 +25,45 @@ Open a DOS command prompt and execute:
 set HADOOP_HOME=C:\hadoop
 ```
 
+## Extend the YARN environment variables
+
+In your DOS command prompt, execute:
+
+```sh
+notepad %HADOOP_HOME%\etc\hadoop\yarn-env.cmd
+```
+
+Locate the following line:
+
+```
+@rem limitations under the License.
+```
+
+and add the following content right after:
+
+```sh
+set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
+set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
+
+set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
+set PATH=%PATH%;%HADOOP_BIN_PATH%
+
+set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
+
+set HADOOP_YARN_HOME=%HADOOP_HOME%
+
+set YARN_OPTS=%YARN_OPTS% -Dyarn.home=%HADOOP_YARN_HOME%
+set YARN_OPTS=%YARN_OPTS% -Dhadoop.home=%HADOOP_HOME%
+```
+
+> ### **Warning 1: JAVA_HOME**
+> Make sure you have no space in the JAVA_HOME variable.
+> If so, please consider using ~1 instead of the full path.
+> To get the path in DOS 8.3 format, you can execute the following command
+> ```
+for %I in ("C:\Program Files\Java\jdk1.8.0_221") do echo %~sI
+```
+
 ## Create the Resource Manager config file as master
 
 Execute the following commands:
@@ -261,7 +300,7 @@ start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\had
 In a command prompt, execute the following commands:
 
 ```
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+%HADOOP_HOME%\etc\hadoop\yarn-env.cmd
 
 start "Apache Hadoop Distribution - YARN Resource Manager" yarn --config "%HADOOP_HOME%\etc\hadoop-master" resourcemanager
 

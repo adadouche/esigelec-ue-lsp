@@ -25,6 +25,46 @@ Open a DOS command prompt and execute:
 set HADOOP_HOME=C:\hadoop
 ```
 
+## Start HDFS NameNode & DataNode process
+
+If the HDFS processes are not started yet, you will need to start.
+
+Open a DOS command prompt and execute:
+
+```sh
+
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+
+start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode
+
+start "Apache Hadoop Distribution - slave-1" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1 datanode
+start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2 datanode
+start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3 datanode
+```
+
+## Start YARN Resource Manager & Node Manager daemon
+
+If the YARN Resource Manager & Node Manager processes are not started yet, you will need to start.
+
+In a command prompt, execute the following commands:
+
+```
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+
+start "Apache Hadoop Distribution - YARN Resource Manager" yarn --config "%HADOOP_HOME%\etc\hadoop-master" resourcemanager
+
+start "Apache Hadoop Distribution - YARN Node Manager 1" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-1" nodemanager
+start "Apache Hadoop Distribution - YARN Node Manager 2" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-2" nodemanager
+start "Apache Hadoop Distribution - YARN Node Manager 3" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-3" nodemanager
+```
+
+You can check the status of your cluster using the following links:
+
+ - Name Node : http://localhost:50070/
+ - Resource Manager	: http://localhost:8088/
+
+
+
 ## The WordCount example
 
 This is the Word Count example code that you will be using.
