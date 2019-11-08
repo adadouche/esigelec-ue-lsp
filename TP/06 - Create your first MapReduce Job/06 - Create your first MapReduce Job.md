@@ -132,7 +132,7 @@ hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -put %HADOOP_HOME%\WordCount.j
 Execute the following commands:
 
 ```
-hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -rmdir /wordcount/output
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -rm -r /wordcount/output
 
 hadoop --config %HADOOP_HOME%\etc\hadoop-client jar %HADOOP_HOME%\WordCount.jar WordCount /wordcount/input /wordcount/output
 ```
