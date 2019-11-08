@@ -119,7 +119,7 @@ set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
 powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-2' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '19866', '29866' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '19864', '29864' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19867', '39867' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19867', '29867' | Out-File -encoding ASCII %xml_file%"
 
 set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
 

@@ -43,7 +43,6 @@ start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\had
 start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3 datanode
 ```
 
-
 ## Interact with the File System
 
 Download and unzip a local copy of the following link:
@@ -63,7 +62,7 @@ Here you can notice that the full path is required and no configuration file is 
 Now, let's import it with a configuration file:
 
 ```sh
-hdfs --config %HADOOP_HOME%\etc\hadoop-client  dfs  -put %HADOOP_HOME%\1500000_Sales_Records.csv /1500000_Sales_Records.client.csv
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -put %HADOOP_HOME%\1500000_Sales_Records.csv /1500000_Sales_Records.client.csv
 ```
 
 And finally, let's import it with inline configuration properties:
