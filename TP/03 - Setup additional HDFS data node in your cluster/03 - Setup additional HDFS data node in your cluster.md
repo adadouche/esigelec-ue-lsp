@@ -2,99 +2,39 @@
 
 ## Prerequisites
 
-You will need to have a Hadoop tar ball extracted in:
+If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
+
+It assumes that you don't have an existing directory **C:\hadoop**.
+
+Open a DOS command prompt and execute:
 
 ```sh
-C:\MyWork\hadoop
-```
-## Extend the environment variables
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
 
-If not done yet, you will update the following file:
+set HADOOP_HOME=C:\hadoop
+
+cd %HADOOP_HOME%
+git checkout --track step-02
+```
+
+## Set your Hadoop Home
+
+Open a DOS command prompt and execute:
 
 ```sh
-C:\MyWork\hadoop\etc\hadoop\hadoop-env.cmd
+set HADOOP_HOME=C:\hadoop
 ```
-
-Locate the following line:
-
-```
-@rem Set Hadoop-specific environment variables here.
-```
-
-and add the following content right after:
-
-```sh
-set HADOOP_HOME=C:\MyWork\hadoop
-
-set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
-set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
-
-set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
-set PATH=%PATH%;%HADOOP_BIN_PATH%
-
-set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
-
-set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS%
-```
-
-## Configure the default core-site.xml file
-
-Open the following file:
-
-```sh
-C:\MyWork\hadoop\etc\hadoop\core-site.xml
-```
-
-Paste in the following configuration:
-
-```xml
-<configuration>
-    <property>
-        <name>fs.defaultFS</name>
-        <value>hdfs://localhost:9000</value>
-    </property>
-    <property>
-        <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/hadoop-${user.name}</value>
-    </property>
-</configuration>
-```
-
-For more details about the configuration file, you can check the following link:
-
- - https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/core-default.xml
-
-## Configure the default hdfs-site.xml file
-
-Open the following file:
-
-```sh
-notepad %HADOOP_HOME%\etc\hadoop\hdfs-site.xml
-```
-
-Paste in the following configuration:
-
-```xml
-<configuration>
-  <property>
-    <name>dfs.replication</name>
-    <value>1</value>
-  </property>
-</configuration>
-```
-
-For more details about the configuration file, you can check the following link:
-
-- https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml
 
 ## Create the NameNode config file as Master
 
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop\master
-copy %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop\master\core-site.xml
-notepad %HADOOP_HOME%\etc\hadoop\master\core-site.xml
+mkdir %HADOOP_HOME%\etc\hadoop-master
+
+copy /Y %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop-master\core-site.xml
+
+notepad %HADOOP_HOME%\etc\hadoop-master\core-site.xml
 ```
 
 Replace the file content with:
@@ -125,9 +65,11 @@ For more details about the configuration file, you can check the following link:
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop\slave-1
-copy %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop\slave-1\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop\slave-1\hdfs-site.xml
+mkdir %HADOOP_HOME%\etc\hadoop-slave-1
+
+copy /Y %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml
+
+notepad %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml
 ```
 
 Replace the file content with:
@@ -142,7 +84,7 @@ Replace the file content with:
   </property>
   <property>
     <name>dfs.datanode.data.dir</name>
-    <value>file:///${hadoop.home}/tmp/datanode-1/dfs/data</value>
+    <value>file:///${hadoop.home}/data/slave-1</value>
   </property>
   <property>
     <name>datanode.https.port</name>
@@ -166,86 +108,36 @@ Replace the file content with:
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop\slave-2
-copy %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop\slave-2\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop\slave-2\hdfs-site.xml
+mkdir %HADOOP_HOME%\etc\hadoop-slave-2
+mkdir %HADOOP_HOME%\etc\hadoop-slave-3
+
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
+
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
+
+powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-2' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19866', '29866' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19864', '29864' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19867', '39867' | Out-File -encoding ASCII %xml_file%"
+
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
+
+powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-3' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19866', '39866' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19864', '39864' | Out-File -encoding ASCII %xml_file%"
+powershell -Command "(gc %xml_file%) -replace '19867', '39867' | Out-File -encoding ASCII %xml_file%"
 ```
 
-Replace the file content with:
+You can now open the generate/modified xml file.
 
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<configuration>
-  <property>
-    <name>dfs.namenode.servicerpc-address</name>
-    <value>localhost:9000</value>
-  </property>
-  <property>
-    <name>dfs.datanode.data.dir</name>
-    <value>file:///${hadoop.home}/tmp/datanode-2/dfs/data</value>
-  </property>
-  <property>
-    <name>datanode.https.port</name>
-    <value>52475</value>
-  </property>
-  <property>
-    <name>dfs.datanode.address</name>
-    <value>0.0.0.0:29866</value>
-  </property>
-  <property>
-    <name>dfs.datanode.http.address</name>
-    <value>0.0.0.0:29864</value>
-  </property>
-  <property>
-    <name>dfs.datanode.ipc.address</name>
-    <value>0.0.0.0:29867</value>
-  </property>   
-</configuration>
+notepad %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
 ```
 
-Execute the following commands:
-
-```
-mkdir %HADOOP_HOME%\etc\hadoop\slave-3
-copy %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop\slave-3\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop\slave-3\hdfs-site.xml
-```
-
-Replace the file content with:
-
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<configuration>
-  <property>
-    <name>dfs.namenode.servicerpc-address</name>
-    <value>localhost:9000</value>
-  </property>
-  <property>
-    <name>dfs.datanode.data.dir</name>
-    <value>file:///${hadoop.home}/tmp/datanode-3/dfs/data</value>
-  </property>
-  <property>
-    <name>datanode.https.port</name>
-    <value>53475</value>
-  </property>
-  <property>
-    <name>dfs.datanode.address</name>
-    <value>0.0.0.0:39866</value>
-  </property>
-  <property>
-    <name>dfs.datanode.http.address</name>
-    <value>0.0.0.0:39864</value>
-  </property>
-  <property>
-    <name>dfs.datanode.ipc.address</name>
-    <value>0.0.0.0:39867</value>
-  </property>   
-</configuration>
-```
-
-Here, we have assigned a set of unique port number for the instance of the data node to start along with a specific directory to store the data set blocks.
+Here you can notice that we have assigned a set of unique port number and folder name for each slave.
 
 For more details about the configuration file, you can check the following link:
 
@@ -253,14 +145,16 @@ For more details about the configuration file, you can check the following link:
 
 ## Create a client config files
 
-Make a copy of `C:\MyWork\hadoop\etc\hadoop\hdfs-site.xml` into `C:\MyWork\hadoop\etc\hadoop\hdfs-site.client.xml`.
+Make a copy of `%HADOOP_HOME%\etc\hadoop\hdfs-site.xml` into `%HADOOP_HOME%\etc\hadoop\hdfs-site.client.xml`.
 
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop\client-1
-copy %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop\client-1\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop\client-1\hdfs-site.xml
+mkdir %HADOOP_HOME%\etc\hadoop-client
+
+copy %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml
+
+notepad %HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml
 ```
 
 Replace the file content with:
@@ -284,28 +178,29 @@ This configuration file will be used to upload the file.
 
 ## Initialize HDFS
 
-Before starting using the HDFS, you will need to format it.
+> **Make sure your previous NameNode & DataNode processes are shutdown before continuing!!!**
 
-In a command prompt, execute the following commands to set the environment variables:
+Before starting using your master/slave HDFS configuration, you will need to format it.
+
+In your DOS command prompt, execute the following commands to set the environment variables:
 
 ```
-C:\MyWork\hadoop\etc\hadoop\hadoop-env.cmd
-
-cd %HADOOP_HOME%
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
 ```
 
 Then, execute the following commands:
 
 ```
-.\bin\hdfs --config %HADOOP_HOME%\etc\hadoop\master namenode -format -force
+hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode -format -force
 ```
+
 
 ## Start HDFS NameNode
 
 In a command prompt, execute the following commands:
 
 ```
-start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\hadoop\master namenode
+start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode
 ```
 
 ## Start HDFS DateNode
@@ -313,7 +208,7 @@ start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\ha
 In a command prompt, execute the following commands:
 
 ```
-start "Apache Hadoop Distribution - slave-1" hdfs --config %HADOOP_HOME%\etc\hadoop\slave-1 datanode
-start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\hadoop\slave-2 datanode
-start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop\slave-3 datanode
+start "Apache Hadoop Distribution - slave-1" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1 datanode
+start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2 datanode
+start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3 datanode
 ```

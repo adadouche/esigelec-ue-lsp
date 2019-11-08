@@ -2,13 +2,30 @@
 
 ## Prerequisites
 
-You will need to have a Hadoop cluster properly configured and up and running (HDFS + YARN):
+If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
+
+It assumes that you don't have an existing directory **C:\hadoop**.
+
+Open a DOS command prompt and execute:
 
 ```sh
-C:\MyWork\hadoop
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
+
+set HADOOP_HOME=C:\hadoop
+
+cd %HADOOP_HOME%
+git checkout --track step-05
 ```
 
-## Your ```
+## Set your Hadoop Home
+
+Open a DOS command prompt and execute:
+
+```sh
+set HADOOP_HOME=C:\hadoop
+```
+
+## The WordCount example
 
 This is the Word Count example code that you will be using.
 
@@ -89,22 +106,25 @@ public class WordCount {
 Execute the following commands:
 
 ```
-SET HADOOP_CLASSPATH=%JAVA_HOME%/lib/tools.jar
-SET PATH=%JAVA_HOME%/bin;%JAVA_HOME%
+cd %HADOOP_HOME%
 
-.\bin\hadoop com.sun.tools.javac.Main WordCount.java
-jar cf WordCount.jar WordCount*.class
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+
+SET HADOOP_CLASSPATH=%JAVA_HOME%/lib/tools.jar
+SET PATH=%JAVA_HOME%/bin;%PATH%
+
+hadoop com.sun.tools.javac.Main %HADOOP_HOME%\WordCount.java
+jar cf %HADOOP_HOME%\WordCount.jar WordCount*.class
 ```
 
 ## Create the directory structure and data
 
-
 Execute the following commands:
 
 ```
-.\bin\hadoop --config %HADOOP_HOME%\etc\hadoop\client-1 fs -mkdir -p /wordcount/input
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -mkdir -p /wordcount/input
 
-.\bin\hadoop --config %HADOOP_HOME%\etc\hadoop\client-1 fs -put WordCount.java /wordcount/input
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -put %HADOOP_HOME%\WordCount.java /wordcount/input
 ```
 
 ## Execute the MapReduce Job
@@ -112,9 +132,9 @@ Execute the following commands:
 Execute the following commands:
 
 ```
-.\bin\hadoop --config %HADOOP_HOME%\etc\hadoop\client-1 fs -rmdir /wordcount/output
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -rmdir /wordcount/output
 
-.\bin\hadoop --config %HADOOP_HOME%\etc\hadoop\client-1 jar WordCount.jar WordCount /wordcount/input /wordcount/output
+hadoop --config %HADOOP_HOME%\etc\hadoop-client jar %HADOOP_HOME%\WordCount.jar WordCount /wordcount/input /wordcount/output
 ```
 
 
@@ -123,7 +143,7 @@ Execute the following commands:
 Execute the following commands:
 
 ```
-.\bin\hadoop --config %HADOOP_HOME%\etc\hadoop\client-1 fs -ls /wordcount/output/
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -ls /wordcount/output/
 
-.\bin\hadoop --config %HADOOP_HOME%\etc\hadoop\client-1 fs -cat /wordcount/output/part-r-00000
+hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -cat /wordcount/output/part-r-00000
 ```

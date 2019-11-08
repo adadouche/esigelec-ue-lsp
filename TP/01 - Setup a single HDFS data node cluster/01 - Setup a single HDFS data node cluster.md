@@ -2,20 +2,29 @@
 
 ## Prerequisites
 
-You will need to have a Hadoop tar ball extracted in:
+If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
+
+It assumes that you don't have an existing directory **C:\hadoop**.
+
+Open a DOS command prompt and execute:
 
 ```sh
-C:\MyWork\hadoop
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
+
+set HADOOP_HOME=C:\hadoop
+
+cd %HADOOP_HOME%
+git checkout --track step-00
 ```
 
 ## Configure the Hadoop environment
 
-##### Extend the environment variables
+##### Extend the Hadoop environment variables
 
-Open the following file:
+In your DOS command prompt, execute:
 
 ```sh
-C:\MyWork\hadoop\etc\hadoop\hadoop-env.cmd
+notepad %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
 ```
 
 Locate the following line:
@@ -27,25 +36,47 @@ Locate the following line:
 and add the following content right after:
 
 ```sh
-set HADOOP_HOME=C:\MyWork\hadoop
-
 set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
+set HADOOP_SBIN_PATH=%HADOOP_HOME%\sbin
 set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
 
 set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
 set PATH=%PATH%;%HADOOP_BIN_PATH%
+set PATH=%PATH%;%HADOOP_SBIN_PATH%
 
 set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
 
 set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS%
 ```
 
+> ### **Warning 1: JAVA_HOME**
+> Make sure you have no space in the JAVA_HOME variable.
+> If so, please consider using ~1 instead of the full path.
+> To get the path in DOS 8.3 format, you can execute the following command
+> ```
+for %I in ("C:\Program Files\Java\jdk1.8.0_221") do echo %~sI
+```
+
+> ### **Warning 1: Windows User Name**
+> Execute the following command in your DOS command prompt
+> ```
+echo %username%
+```
+> If the returned result includes a space, then you will need to adjust the following line in the hadoop-env.cmd file:
+> ```
+set HADOOP_IDENT_STRING=%USERNAME%
+```
+> and replace it by:
+```
+set "HADOOP_IDENT_STRING=%USERNAME: =_%"
+```
+
 ##### Configure the core-site.xml file
 
-Open the following file:
+In your DOS command prompt, execute:
 
 ```sh
-C:\MyWork\hadoop\etc\hadoop\core-site.xml
+notepad %HADOOP_HOME%\etc\hadoop\core-site.xml
 ```
 
 Paste in the following configuration:
@@ -69,10 +100,10 @@ For more details about the configuration file, you can check the following link:
 
 ##### Configure the hdfs-site.xml file
 
-Open the following file:
+In your DOS command prompt, execute:
 
 ```sh
-C:\MyWork\hadoop\etc\hadoop\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop\hdfs-site.xml
 ```
 
 Paste in the following configuration:
@@ -94,18 +125,16 @@ For more details about the configuration file, you can check the following link:
 
 Before starting using the HDFS, you will need to format it.
 
-In a command prompt, execute the following commands to set the environment variables:
+In your DOS command prompt, execute the following commands to set the environment variables:
 
 ```
-C:\MyWork\hadoop\etc\hadoop\hadoop-env.cmd
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
 ```
 
 Then, execute the following commands:
 
 ```
-cd %HADOOP_HOME%
-
-.\bin\hdfs namenode -format
+hdfs namenode -format -force
 ```
 
 This will format the name node `dfs`.
@@ -115,5 +144,5 @@ This will format the name node `dfs`.
 In a command prompt, execute the following commands:
 
 ```
-.\sbin\start-dfs.cmd
+start-dfs
 ```

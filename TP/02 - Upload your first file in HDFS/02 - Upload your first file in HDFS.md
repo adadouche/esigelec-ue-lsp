@@ -2,39 +2,37 @@
 
 ## Prerequisites
 
-You will need to have a Hadoop tar ball extracted and properly configured in:
+If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
+
+It assumes that you don't have an existing directory **C:\hadoop**.
+
+Open a DOS command prompt and execute:
 
 ```sh
-C:\MyWork\hadoop
-```
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
 
-The DFS process must be started.
-
-## Set the environment variables
-
-Open a command prompt, then execute the following commands to setup the enironment variables :
-
-```sh
-set HADOOP_HOME=C:\MyWork\hadoop
-
-set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
-set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
-
-set JAVA_HOME=C:\Progra~1\Java\jdk1.8.0_221
-set PATH=%PATH%;%HADOOP_BIN_PATH%
+set HADOOP_HOME=C:\hadoop
 
 cd %HADOOP_HOME%
-
-.\etc\hadoop\hadoop-env.cmd
+git checkout --track step-01
 ```
-## Start HDFS daemons
 
-If not started yet, start the HDFS daemons.
+## Start HDFS
 
-In a command prompt, execute the following commands:
+If the HDFS processes are not started yet, you will need to start.
 
-```
-.\sbin\start-dfs.cmd
+Open a DOS command prompt and execute:
+
+```sh
+set HADOOP_HOME=C:\hadoop
+
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+
+rd /S /Q %HADOOP_HOME%\tmp
+
+hdfs namenode -format -force
+
+start-dfs
 ```
 
 ## Interact with the File System
@@ -42,25 +40,25 @@ In a command prompt, execute the following commands:
 Let's first create a directory:
 
 ```sh
-.\bin\hdfs dfs -mkdir /config
+hdfs dfs -mkdir /config
 ```
 
 Now check the directory is created :
 
 ```sh
-.\bin\hdfs dfs -ls /
+hdfs dfs -ls /
 ```
 
 Now let's copy the local configuration file into it
 
 ```sh
-.\bin\hdfs dfs -put %HADOOP_HOME%\etc\hadoop\*.xml /config
+hdfs dfs -put %HADOOP_HOME%\etc\hadoop\*.xml /config
 ```
 
 And finally, let's check the files are here:
 
 ```sh
-.\bin\hdfs dfs -ls /config
+hdfs dfs -ls /config
 ```
 
 And visualize one:
@@ -79,4 +77,4 @@ And access the file system:
 
  - http://localhost:50070/explorer.html#/
 
-You can also explore the folders stored in **C:\MyWork\hadoop\tmp**
+You can also explore the folders stored in **%HADOOP_HOME%\tmp**
