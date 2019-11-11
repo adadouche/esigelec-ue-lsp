@@ -14,7 +14,7 @@ git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
 set HADOOP_HOME=C:\hadoop
 
 cd %HADOOP_HOME%
-git checkout --track step-00
+git checkout -b step-00
 ```
 
 ## Configure the Hadoop environment
@@ -36,39 +36,23 @@ Locate the following line:
 and add the following content right after:
 
 ```sh
+for %%I in ("%JAVA_HOME%") do (
+  set "JAVA_HOME=%%~sI"
+)
+set "JAVA_HOME=%JAVA_HOME:\=/%"
+
+set "USERNAME=%USERNAME: =_%"
+
 set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
 set HADOOP_SBIN_PATH=%HADOOP_HOME%\sbin
 set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
 
-set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
 set PATH=%PATH%;%HADOOP_BIN_PATH%
 set PATH=%PATH%;%HADOOP_SBIN_PATH%
 
 set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
 
 set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS%
-```
-
-> ### **Warning 1: JAVA_HOME**
-> Make sure you have no space in the JAVA_HOME variable.
-> If so, please consider using ~1 instead of the full path.
-> To get the path in DOS 8.3 format, you can execute the following command
-> ```
-for %I in ("C:\Program Files\Java\jdk1.8.0_221") do echo %~sI
-```
-
-> ### **Warning 1: Windows User Name**
-> Execute the following command in your DOS command prompt
-> ```
-echo %username%
-```
-> If the returned result includes a space, then you will need to adjust the following line in the hadoop-env.cmd file:
-> ```
-set HADOOP_IDENT_STRING=%USERNAME%
-```
-> and replace it by:
-```
-set "HADOOP_IDENT_STRING=%USERNAME: =_%"
 ```
 
 ##### Configure the core-site.xml file
@@ -128,6 +112,11 @@ Before starting using the HDFS, you will need to format it.
 In your DOS command prompt, execute the following commands to set the environment variables:
 
 ```
+set HADOOP_HOME=C:\hadoop
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
+
+cd %HADOOP_HOME%
+
 %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
 ```
 
