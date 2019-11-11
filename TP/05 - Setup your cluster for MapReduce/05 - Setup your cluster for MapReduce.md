@@ -52,6 +52,7 @@ and add the following content right after:
 ```
 set HADOOP_YARN_HOME=%HADOOP_HOME%
 
+
 for %%I in ("%JAVA_HOME%") do (
   set "JAVA_HOME=%%~sI"
 )
@@ -60,6 +61,7 @@ set "JAVA_HOME=%JAVA_HOME:\=/%"
 set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
 set HADOOP_SBIN_PATH=%HADOOP_HOME%\sbin
 set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
+set HADOOP_LOG_DIR=%HADOOP_HOME%\logs
 
 set PATH=%PATH%;%HADOOP_BIN_PATH%
 set PATH=%PATH%;%HADOOP_SBIN_PATH%
