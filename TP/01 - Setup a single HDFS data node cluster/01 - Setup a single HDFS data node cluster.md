@@ -9,12 +9,19 @@ It assumes that you don't have an existing directory **C:\hadoop**.
 Open a DOS command prompt and execute:
 
 ```sh
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
-
 set HADOOP_HOME=C:\hadoop
 
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
+```
+
+Now checkout the current step branch:
+
+```
 cd %HADOOP_HOME%
-git checkout -b step-00
+
+git fetch --all
+git reset --hard origin/step-00
+git clean -dfq
 ```
 
 ## Configure the Hadoop environment

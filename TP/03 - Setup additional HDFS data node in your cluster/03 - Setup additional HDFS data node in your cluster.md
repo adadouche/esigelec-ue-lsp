@@ -9,20 +9,28 @@ It assumes that you don't have an existing directory **C:\hadoop**.
 Open a DOS command prompt and execute:
 
 ```sh
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
-
 set HADOOP_HOME=C:\hadoop
 
-cd %HADOOP_HOME%
-git checkout --track step-02
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
 ```
 
-## Set your Hadoop Home
+Now checkout the current step branch:
+
+```
+cd %HADOOP_HOME%
+
+git fetch --all
+git reset --hard origin/step-02
+git clean -dfq
+```
+
+## Set your Hadoop & Java Home
 
 Open a DOS command prompt and execute:
 
 ```sh
 set HADOOP_HOME=C:\hadoop
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
 ```
 
 ## Create the NameNode config file as Master
@@ -30,18 +38,16 @@ set HADOOP_HOME=C:\hadoop
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop-master
+mkdir %HADOOP_HOME%\etc\hadoop-master-nn
 
-copy /Y %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop-master\core-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop-master-nn\core-site.xml
 
-notepad %HADOOP_HOME%\etc\hadoop-master\core-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-master-nn\core-site.xml
 ```
 
 Replace the file content with:
 
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
     <property>
         <name>fs.defaultFS</name>
@@ -49,7 +55,7 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/namenode</value>
+        <value>/${hadoop.home}/tmp/master-nn</value>
     </property>
 </configuration>
 ```
@@ -65,18 +71,16 @@ For more details about the configuration file, you can check the following link:
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop-slave-1
+mkdir %HADOOP_HOME%\etc\hadoop-slave-1-dn
 
-copy /Y %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml
 
-notepad %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml
 ```
 
 Replace the file content with:
 
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
   <property>
     <name>dfs.namenode.servicerpc-address</name>
@@ -84,7 +88,7 @@ Replace the file content with:
   </property>
   <property>
     <name>dfs.datanode.data.dir</name>
-    <value>file:///${hadoop.home}/data/slave-1</value>
+    <value>file:///${hadoop.home}/data/slave-1-dn</value>
   </property>
   <property>
     <name>datanode.https.port</name>
@@ -108,20 +112,20 @@ Replace the file content with:
 Execute the following commands:
 
 ```
-mkdir %HADOOP_HOME%\etc\hadoop-slave-2
-mkdir %HADOOP_HOME%\etc\hadoop-slave-3
+mkdir %HADOOP_HOME%\etc\hadoop-slave-2-dn
+mkdir %HADOOP_HOME%\etc\hadoop-slave-3-dn
 
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-dn\hdfs-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-dn\hdfs-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-dn\hdfs-site.xml
 
 powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-2' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '19866', '29866' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '19864', '29864' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '19867', '29867' | Out-File -encoding ASCII %xml_file%"
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-dn\hdfs-site.xml
 
 powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-3' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '19866', '39866' | Out-File -encoding ASCII %xml_file%"
@@ -132,9 +136,9 @@ powershell -Command "(gc %xml_file%) -replace '19867', '39867' | Out-File -encod
 You can now open the generate/modified xml file.
 
 ```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-2-dn\hdfs-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-3-dn\hdfs-site.xml
 ```
 
 Here you can notice that we have assigned a set of unique port number and folder name for each slave.
@@ -145,7 +149,7 @@ For more details about the configuration file, you can check the following link:
 
 ## Create a client config files
 
-Make a copy of `%HADOOP_HOME%\etc\hadoop\hdfs-site.xml` into `%HADOOP_HOME%\etc\hadoop\hdfs-site.client.xml`.
+Make a copy of `%HADOOP_HOME%\etc\hadoop\hdfs-site.xml` into `%HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml`.
 
 Execute the following commands:
 
@@ -160,8 +164,6 @@ notepad %HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml
 Replace the file content with:
 
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
   <property>
     <name>dfs.replication</name>
@@ -171,6 +173,29 @@ Replace the file content with:
     <name>dfs.block.size</name>
     <value>2m</value>
   </property>  
+</configuration>
+```
+
+Execute the following commands:
+
+```
+copy /Y %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop-client\core-site.xml
+
+notepad %HADOOP_HOME%\etc\hadoop-client\core-site.xml
+```
+
+Replace the file content with:
+
+```
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/${hadoop.home}/tmp/client</value>
+    </property>
 </configuration>
 ```
 
@@ -188,10 +213,10 @@ In your DOS command prompt, execute the following commands to set the environmen
 %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
 ```
 
-Then, execute the following commands:
+Then, execute the following command:
 
 ```
-hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode -format -force
+hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode -format -force
 ```
 
 
@@ -200,7 +225,7 @@ hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode -format -force
 In a command prompt, execute the following commands:
 
 ```
-start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode
+start "hdfs - master namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode
 ```
 
 ## Start HDFS DateNode
@@ -208,7 +233,7 @@ start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\ha
 In a command prompt, execute the following commands:
 
 ```
-start "Apache Hadoop Distribution - slave-1" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1 datanode
-start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2 datanode
-start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3 datanode
+start "hdfs - slave-1 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1-dn datanode
+start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-dn datanode
+start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
 ```

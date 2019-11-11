@@ -9,20 +9,28 @@ It assumes that you don't have an existing directory **C:\hadoop**.
 Open a DOS command prompt and execute:
 
 ```sh
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
-
 set HADOOP_HOME=C:\hadoop
 
-cd %HADOOP_HOME%
-git checkout --track step-04
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
 ```
 
-## Set your Hadoop Home
+Now checkout the current step branch:
+
+```
+cd %HADOOP_HOME%
+
+git fetch --all
+git reset --hard origin/step-04
+git clean -dfq
+```
+
+## Set your Hadoop & Java Home
 
 Open a DOS command prompt and execute:
 
 ```sh
 set HADOOP_HOME=C:\hadoop
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
 ```
 
 ## Extend the YARN environment variables
@@ -41,27 +49,25 @@ Locate the following line:
 
 and add the following content right after:
 
-```sh
+```
+set HADOOP_YARN_HOME=%HADOOP_HOME%
+
+for %%I in ("%JAVA_HOME%") do (
+  set "JAVA_HOME=%%~sI"
+)
+set "JAVA_HOME=%JAVA_HOME:\=/%"
+
 set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
+set HADOOP_SBIN_PATH=%HADOOP_HOME%\sbin
 set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
 
-set JAVA_HOME=C:/Progra~1/Java/jdk1.8.0_221
 set PATH=%PATH%;%HADOOP_BIN_PATH%
+set PATH=%PATH%;%HADOOP_SBIN_PATH%
 
 set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
 
-set HADOOP_YARN_HOME=%HADOOP_HOME%
-
-set YARN_OPTS=%YARN_OPTS% -Dyarn.home=%HADOOP_YARN_HOME%
-set YARN_OPTS=%YARN_OPTS% -Dhadoop.home=%HADOOP_HOME%
-```
-
-> ### **Warning 1: JAVA_HOME**
-> Make sure you have no space in the JAVA_HOME variable.
-> If so, please consider using ~1 instead of the full path.
-> To get the path in DOS 8.3 format, you can execute the following command
-> ```
-for %I in ("C:\Program Files\Java\jdk1.8.0_221") do echo %~sI
+set YARN_OPTS=%YARN_OPTS% -Dyarn.home=%HADOOP_HOME_OPTS%
+set YARN_OPTS=%YARN_OPTS% -Dhadoop.home=%HADOOP_HOME_OPTS%
 ```
 
 ## Create the Resource Manager config file as master
@@ -69,15 +75,16 @@ for %I in ("C:\Program Files\Java\jdk1.8.0_221") do echo %~sI
 Execute the following commands:
 
 ```
-copy /Y "%HADOOP_HOME%\etc\hadoop\yarn-site.xml" "%HADOOP_HOME%\etc\hadoop-master\yarn-site.xml"
+mkdir "%HADOOP_HOME%\etc\hadoop-master-rm"
 
-notepad "%HADOOP_HOME%\etc\hadoop-master\yarn-site.xml"
+copy /Y "%HADOOP_HOME%\etc\hadoop\yarn-site.xml" "%HADOOP_HOME%\etc\hadoop-master-rm\yarn-site.xml"
+
+notepad "%HADOOP_HOME%\etc\hadoop-master-rm\yarn-site.xml"
 ```
 
 Replace the file content with:
 
 ```
-<?xml version="1.0"?>
 <configuration>
     <property>
         <name>yarn.nodemanager.aux-services</name>
@@ -99,13 +106,12 @@ Now, create the capacity scheduler configuration.
 Execute the following commands:
 
 ```
-notepad "%HADOOP_HOME%\etc\hadoop-master\capacity-scheduler.xml
+notepad "%HADOOP_HOME%\etc\hadoop-master-rm\capacity-scheduler.xml
 ```
 
 Replace the file content with:
 
 ```
-<?xml version="1.0"?>
 <configuration>
 	<property>
 		<name>yarn.scheduler.capacity.root.queues</name>
@@ -123,15 +129,16 @@ Replace the file content with:
 Execute the following commands:
 
 ```
-copy "%HADOOP_HOME%\etc\hadoop\yarn-site.xml" "%HADOOP_HOME%\etc\hadoop-slave-1\yarn-site.xml"
+mkdir "%HADOOP_HOME%\etc\hadoop-slave-1-nm"
 
-notepad "%HADOOP_HOME%\etc\hadoop-slave-1\yarn-site.xml"
+copy "%HADOOP_HOME%\etc\hadoop\yarn-site.xml" "%HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml"
+
+notepad "%HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml"
 ```
 
 Replace the file content with:
 
 ```
-<?xml version="1.0"?>
 <configuration>
     <property>
         <name>yarn.nodemanager.aux-services</name>
@@ -159,15 +166,18 @@ Replace the file content with:
 Execute the following commands:
 
 ```
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\yarn-site.xml %HADOOP_HOME%\etc\hadoop-slave-2\yarn-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\yarn-site.xml %HADOOP_HOME%\etc\hadoop-slave-3\yarn-site.xml
+mkdir "%HADOOP_HOME%\etc\hadoop-slave-2-nm"
+mkdir "%HADOOP_HOME%\etc\hadoop-slave-3-nm"
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2\yarn-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-nm\yarn-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-nm\yarn-site.xml
+
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-nm\yarn-site.xml
 
 powershell -Command "(gc %xml_file%) -replace '8140', '8240' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '8142', '8242' | Out-File -encoding ASCII %xml_file%"
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3\yarn-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-nm\yarn-site.xml
 
 powershell -Command "(gc %xml_file%) -replace '8140', '8340' | Out-File -encoding ASCII %xml_file%"
 powershell -Command "(gc %xml_file%) -replace '8142', '8342' | Out-File -encoding ASCII %xml_file%"
@@ -176,22 +186,22 @@ powershell -Command "(gc %xml_file%) -replace '8142', '8342' | Out-File -encodin
 You can now open the generate/modified xml file.
 
 ```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1\yarn-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2\yarn-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3\yarn-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-2-nm\yarn-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-3-nm\yarn-site.xml
 ```
 
-```
-copy /Y "%HADOOP_HOME%\etc\hadoop\mapred-site.xml.template" "%HADOOP_HOME%\etc\hadoop-slave-1\mapred-site.xml"
+Execute the following commands:
 
-notepad "%HADOOP_HOME%\etc\hadoop-slave-1\mapred-site.xml"
+```
+copy /Y "%HADOOP_HOME%\etc\hadoop\mapred-site.xml.template" "%HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml"
+
+notepad "%HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml"
 ```
 
 Replace the file content with:
 
 ```
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
     <property>
         <name>mapreduce.framework.name</name>
@@ -211,14 +221,14 @@ Replace the file content with:
 Execute the following commands:
 
 ```
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\mapred-site.xml %HADOOP_HOME%\etc\hadoop-slave-2\mapred-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\mapred-site.xml %HADOOP_HOME%\etc\hadoop-slave-3\mapred-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-nm\mapred-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-nm\mapred-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2\mapred-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-nm\mapred-site.xml
 
 powershell -Command "(gc %xml_file%) -replace '13562', '23562' | Out-File -encoding ASCII %xml_file%"
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3\mapred-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-nm\mapred-site.xml
 
 powershell -Command "(gc %xml_file%) -replace '13562', '33562' | Out-File -encoding ASCII %xml_file%"
 ```
@@ -226,17 +236,17 @@ powershell -Command "(gc %xml_file%) -replace '13562', '33562' | Out-File -encod
 You can now open the generate/modified xml file.
 
 ```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1\mapred-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2\mapred-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3\mapred-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-2-nm\mapred-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-3-nm\mapred-site.xml
 ```
 
 Execute the following commands:
 
 ```
-copy /Y "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop-slave-1\core-site.xml"
+copy /Y "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml"
 
-notepad "%HADOOP_HOME%\etc\hadoop-slave-1\core-site.xml"
+notepad "%HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml"
 ```
 
 Replace the file content with:
@@ -249,7 +259,7 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/slave-1</value>
+        <value>/${hadoop.home}/tmp/slave-1-nm</value>
     </property>
 </configuration>
 ```
@@ -257,14 +267,14 @@ Replace the file content with:
 Execute the following commands:
 
 ```
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\core-site.xml %HADOOP_HOME%\etc\hadoop-slave-2\core-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1\core-site.xml %HADOOP_HOME%\etc\hadoop-slave-3\core-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-nm\core-site.xml
+copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-nm\core-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2\core-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-nm\core-site.xml
 
 powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-2' | Out-File -encoding ASCII %xml_file%"
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3\core-site.xml
+set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-nm\core-site.xml
 
 powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-3' | Out-File -encoding ASCII %xml_file%"
 ```
@@ -272,9 +282,9 @@ powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-3' | Out-File -e
 You can now open the generate/modified xml file.
 
 ```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1\core-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2\core-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3\core-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-2-nm\core-site.xml
+notepad %HADOOP_HOME%\etc\hadoop-slave-3-nm\core-site.xml
 ```
 
 
@@ -282,31 +292,43 @@ notepad %HADOOP_HOME%\etc\hadoop-slave-3\core-site.xml
 
 If the HDFS processes are not started yet, you will need to start.
 
-Open a DOS command prompt and execute:
+In your DOS command prompt, execute the following commands to set the environment variables:
+
+```
+%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+```
+
+Then, execute the following command:
 
 ```sh
+rd /S /Q %HADOOP_HOME%\tmp
+rd /S /Q %HADOOP_HOME%\data
 
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode -format -force
 
-start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode
+start "hdfs - master namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode
 
-start "Apache Hadoop Distribution - slave-1" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1 datanode
-start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2 datanode
-start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3 datanode
+start "hdfs - slave-1 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1-dn datanode
+start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-dn datanode
+start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
 ```
 
 ## Start YARN Resource Manager daemon
 
-In a command prompt, execute the following commands:
+In your DOS command prompt, execute the following commands to set the environment variables:
 
 ```
 %HADOOP_HOME%\etc\hadoop\yarn-env.cmd
+```
 
-start "Apache Hadoop Distribution - YARN Resource Manager" yarn --config "%HADOOP_HOME%\etc\hadoop-master" resourcemanager
+Then, execute the following command:
 
-start "Apache Hadoop Distribution - YARN Node Manager 1" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-1" nodemanager
-start "Apache Hadoop Distribution - YARN Node Manager 2" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-2" nodemanager
-start "Apache Hadoop Distribution - YARN Node Manager 3" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-3" nodemanager
+```
+start "yarn - master resourcemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-master-rm" resourcemanager
+
+start "yarn - slave-1 nodemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-1-nm" nodemanager
+start "yarn - slave-2 nodemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-2-nm" nodemanager
+start "yarn - slave-3 nodemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-3-nm" nodemanager
 ```
 
 You can check the status of your cluster using the following links:

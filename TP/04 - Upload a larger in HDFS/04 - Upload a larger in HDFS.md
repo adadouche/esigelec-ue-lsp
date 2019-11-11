@@ -9,38 +9,53 @@ It assumes that you don't have an existing directory **C:\hadoop**.
 Open a DOS command prompt and execute:
 
 ```sh
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
-
 set HADOOP_HOME=C:\hadoop
 
-cd %HADOOP_HOME%
-git checkout --track step-03
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
 ```
 
-## Set your Hadoop Home
+Now checkout the current step branch:
+
+```
+cd %HADOOP_HOME%
+
+git fetch --all
+git reset --hard origin/step-03
+git clean -dfq
+```
+
+## Set your Hadoop & Java Home
 
 Open a DOS command prompt and execute:
 
 ```sh
 set HADOOP_HOME=C:\hadoop
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
 ```
 
 ## Start HDFS
 
 If the HDFS processes are not started yet, you will need to start.
 
-Open a DOS command prompt and execute:
+In your DOS command prompt, execute the following commands to set the environment variables:
 
-```sh
-set HADOOP_HOME=C:\hadoop
-
+```
 %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+```
 
-start "Apache Hadoop Distribution - namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master namenode
+Then, execute the following commands:
 
-start "Apache Hadoop Distribution - slave-1" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1 datanode
-start "Apache Hadoop Distribution - slave-2" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2 datanode
-start "Apache Hadoop Distribution - slave-3" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3 datanode
+```
+rd /S /Q %HADOOP_HOME%\tmp
+rd /S /Q %HADOOP_HOME%\data
+
+hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode -format -force
+
+start "hdfs - master namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode
+
+start "hdfs - slave-1 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1-dn datanode
+start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-dn datanode
+start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
 ```
 
 ## Interact with the File System
@@ -49,7 +64,13 @@ Download and unzip a local copy of the following link:
 
 - http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
 
-Rename the output file like **1500000_Sales_Records.csv** instead of **1500000 Sales Records.csv**.
+You can use the following commands to download:
+
+```sh
+powershell Invoke-WebRequest -OutFile 1500000_Sales_Records.7z http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
+```
+
+Now, you need to extract it and rename the output file like **1500000_Sales_Records.csv** instead of **1500000 Sales Records.csv**.
 
 Now, let's import it:
 

@@ -9,25 +9,43 @@ It assumes that you don't have an existing directory **C:\hadoop**.
 Open a DOS command prompt and execute:
 
 ```sh
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git C:\hadoop
-
 set HADOOP_HOME=C:\hadoop
 
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
+```
+
+Now checkout the current step branch:
+
+```
 cd %HADOOP_HOME%
-git checkout --track step-01
+
+git fetch --all
+git reset --hard origin/step-01
+git clean -dfq
+```
+
+## Set your Hadoop & Java Home
+
+Open a DOS command prompt and execute:
+
+```sh
+set HADOOP_HOME=C:\hadoop
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
 ```
 
 ## Start HDFS
 
 If the HDFS processes are not started yet, you will need to start.
 
-Open a DOS command prompt and execute:
+In your DOS command prompt, execute the following commands to set the environment variables:
 
-```sh
-set HADOOP_HOME=C:\hadoop
-
+```
 %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+```
 
+Then, execute the following commands:
+
+```
 rd /S /Q %HADOOP_HOME%\tmp
 
 hdfs namenode -format -force
