@@ -315,7 +315,7 @@ start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-d
 start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
 ```
 
-## Start YARN Resource Manager daemon
+## Start YARN Resource Manager and Node Manager daemon
 
 In your DOS command prompt, execute the following commands to set the environment variables:
 
