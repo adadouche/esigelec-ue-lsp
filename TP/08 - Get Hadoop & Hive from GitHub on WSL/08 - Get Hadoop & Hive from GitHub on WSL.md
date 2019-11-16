@@ -34,15 +34,18 @@ First thing, you can do is to set the JAVA_HOME in the bashrc scripts so it will
 ```sh
 rm ~/.bashrc_hadoop_env
 
+echo -e "umask 022" >> ~/.bashrc_hadoop_env
 echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ~/.bashrc_hadoop_env
 echo -e "export HADOOP_HOME=/mnt/c/hadoop-hive/hadoop-3.2.1" >> ~/.bashrc_hadoop_env
 echo -e "export HIVE_HOME=/mnt/c/hadoop-hive/hive-3.1.2" >> ~/.bashrc_hadoop_env
+
+echo -e "export HIVE_CONF_DIR=$HIVE_HOME/conf" >> ~/.bashrc_hadoop_env
 
 echo -e "export HADOOP_BIN_PATH=$HADOOP_HOME/bin" >> ~/.bashrc_hadoop_env
 echo -e "export HADOOP_SBIN_PATH=$HADOOP_HOME/sbin" >> ~/.bashrc_hadoop_env
 
 echo -e "export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/.bashrc_hadoop_env
-echo -e "export HADOOP_LOG_DIR==$HADOOP_HOME/logs" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_LOG_DIR=$HADOOP_HOME/logs" >> ~/.bashrc_hadoop_env
 
 echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\"" >> ~/.bashrc_hadoop_env
 echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dyarn.home='\$HADOOP_HOME'\"" >> ~/.bashrc_hadoop_env
@@ -68,17 +71,23 @@ set HADOOP_HOME=/mnt/c/hadoop-hive/hadoop-3.2.1
 Then, execute the following command to cleanup anything from previous experiments:
 
 ```sh
-bash -ic "rm -rf %HADOOP_HOME%/tmp; rm -rf %HADOOP_HOME%/data; hdfs --config %HADOOP_HOME%/etc/hadoop-master-nn namenode -format -force"
+bash -ic "rm -rf %HADOOP_HOME%/tmp; rm -rf %HADOOP_HOME%/data; rm -rf %HADOOP_HOME%/pid; mkdir %HADOOP_HOME%/tmp; mkdir %HADOOP_HOME%/data; mkdir %HADOOP_HOME%/pid"
+```
+
+Execute the following command to reformat the HDFS Name Node:
+
+```sh
+bash -ic "hdfs --config %HADOOP_HOME%/etc/hadoop-master-nn namenode -format -force"
 ```
 
 Then, execute the following command to start your Name Node and 3 Data Nodes:
 
 ```sh
-start "hdfs - master namenode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/master-nn; rm %HADOOP_HOME%/pid/*.pid; hdfs --config %HADOOP_HOME%/etc/hadoop-master-nn namenode"
+start "hdfs - master namenode"  bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/master-nn; hdfs --config %HADOOP_HOME%/etc/hadoop-master-nn namenode"
 
-start "hdfs - slave-1 datanode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-1-dn; rm %HADOOP_HOME%/pid/*.pid; hdfs --config %HADOOP_HOME%/etc/hadoop-slave-1-dn datanode"
-start "hdfs - slave-2 datanode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-2-dn; rm %HADOOP_HOME%/pid/*.pid; hdfs --config %HADOOP_HOME%/etc/hadoop-slave-2-dn datanode"
-start "hdfs - slave-3 datanode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-3-dn; rm %HADOOP_HOME%/pid/*.pid; hdfs --config %HADOOP_HOME%/etc/hadoop-slave-3-dn datanode"
+start "hdfs - slave-1 datanode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-1-dn; hdfs --config %HADOOP_HOME%/etc/hadoop-slave-1-dn datanode"
+start "hdfs - slave-2 datanode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-2-dn; hdfs --config %HADOOP_HOME%/etc/hadoop-slave-2-dn datanode"
+start "hdfs - slave-3 datanode" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-3-dn; hdfs --config %HADOOP_HOME%/etc/hadoop-slave-3-dn datanode"
 ```
 
 You can check the status of your cluster using the following links:
@@ -89,12 +98,12 @@ You can check the status of your cluster using the following links:
 
 Then, execute the following command:
 
-```
-start "yarn - master resourcemanager" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/master-rm; rm %HADOOP_HOME%/pid/*.pid; yarn --config "%HADOOP_HOME%/etc/hadoop-master-rm" resourcemanager"
+```sh
+start "yarn - master resourcemanager" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/master-rm; yarn --config %HADOOP_HOME%/etc/hadoop-master-rm resourcemanager"
 
-start "yarn - slave-1 nodemanager" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-1-nm; rm %HADOOP_HOME%/pid/*.pid; yarn --config "%HADOOP_HOME%/etc/hadoop-slave-1-nm" nodemanager"
-start "yarn - slave-2 nodemanager" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-2-nm; rm %HADOOP_HOME%/pid/*.pid; yarn --config "%HADOOP_HOME%/etc/hadoop-slave-2-nm" nodemanager"
-start "yarn - slave-3 nodemanager" bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-3-nm; rm %HADOOP_HOME%/pid/*.pid; yarn --config "%HADOOP_HOME%/etc/hadoop-slave-3-nm" nodemanager"
+start "yarn - slave-1 nodemanager"    bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-1-nm; yarn --config %HADOOP_HOME%/etc/hadoop-slave-1-nm nodemanager"
+start "yarn - slave-2 nodemanager"    bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-2-nm; yarn --config %HADOOP_HOME%/etc/hadoop-slave-2-nm nodemanager"
+start "yarn - slave-3 nodemanager"    bash -ic "export HADOOP_PID_DIR=%HADOOP_HOME%/pid/slave-3-nm; yarn --config %HADOOP_HOME%/etc/hadoop-slave-3-nm nodemanager"
 ```
 
 You can check the status of your cluster using the following links:
