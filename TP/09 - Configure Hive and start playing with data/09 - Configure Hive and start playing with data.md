@@ -25,6 +25,38 @@ git reset --hard origin/step-08
 git clean -dfq
 ```
 
+## Extend your BASH RC environment
+
+In your Ubuntu terminal, execute the following commands:
+
+First thing, you can do is to set the JAVA_HOME in the bashrc scripts so it will be initialized for every new bash session:
+
+```sh
+rm ~/.bashrc_hadoop_env
+
+echo -e "umask 022" >> ~/.bashrc_hadoop_env
+echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_HOME=/mnt/c/hadoop-hive/hadoop-3.2.1" >> ~/.bashrc_hadoop_env
+echo -e "export HIVE_HOME=/mnt/c/hadoop-hive/hive-3.1.2" >> ~/.bashrc_hadoop_env
+
+echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf" >> ~/.bashrc_hadoop_env
+
+echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin" >> ~/.bashrc_hadoop_env
+
+echo -e "export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_LOG_DIR=\$HADOOP_HOME/logs" >> ~/.bashrc_hadoop_env
+
+echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\"" >> ~/.bashrc_hadoop_env
+echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dyarn.home='\$HADOOP_HOME'\"" >> ~/.bashrc_hadoop_env
+
+echo -e "export PATH=\$PATH:\$HADOOP_BIN_PATH" >> ~/.bashrc_hadoop_env
+echo -e "export PATH=\$PATH:\$HADOOP_SBIN_PATH" >> ~/.bashrc_hadoop_env
+echo -e "export PATH=\$PATH:\$JAVA_HOME/bin" >> ~/.bashrc_hadoop_env
+echo -e "export PATH=\$PATH:\$HIVE_HOME/bin" >> ~/.bashrc_hadoop_env
+
+source ~/.bashrc_hadoop_env
+```
 
 ## Start the Hadoop processes
 
