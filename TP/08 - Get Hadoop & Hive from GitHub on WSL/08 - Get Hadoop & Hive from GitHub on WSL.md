@@ -227,9 +227,9 @@ hadoop --config $HADOOP_HOME/etc/hadoop-client jar $HADOOP_HOME/WordCount.jar Wo
 Execute the following commands:
 
 ```
-hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -ls /wordcount/output/
+hdfs --config $HADOOP_HOME\etc\hadoop-client dfs -ls /wordcount/output/
 
-hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -cat /wordcount/output/part-r-00000
+hdfs --config $HADOOP_HOME\etc\hadoop-client dfs -cat /wordcount/output/part-r-00000
 ```
 
 You can also check the status of your job in the Resource Manager using the following links:
