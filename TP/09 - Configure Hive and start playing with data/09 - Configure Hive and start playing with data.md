@@ -96,10 +96,10 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/slave-1-nm;
 yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm nodemanager &> $HADOOP_HOME/logs/hadoop-slave-1-nm.log &
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/slave-2-nm;
-yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm nodemanager &> $HADOOP_HOME/logs/hadoop-slave-1-nm.log &
+yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm nodemanager &> $HADOOP_HOME/logs/hadoop-slave-2-nm.log &
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/slave-3-nm;
-yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm nodemanager &> $HADOOP_HOME/logs/hadoop-slave-1-nm.log &
+yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm nodemanager &> $HADOOP_HOME/logs/hadoop-slave-3-nm.log &
 ```
 
 You can check the status of your cluster using the following links:
