@@ -39,13 +39,13 @@ echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ~/.bashrc_hadoop
 echo -e "export HADOOP_HOME=/mnt/c/hadoop-hive/hadoop-3.2.1" >> ~/.bashrc_hadoop_env
 echo -e "export HIVE_HOME=/mnt/c/hadoop-hive/hive-3.1.2" >> ~/.bashrc_hadoop_env
 
-echo -e "export HIVE_CONF_DIR=$HIVE_HOME/conf" >> ~/.bashrc_hadoop_env
+echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf" >> ~/.bashrc_hadoop_env
 
-echo -e "export HADOOP_BIN_PATH=$HADOOP_HOME/bin" >> ~/.bashrc_hadoop_env
-echo -e "export HADOOP_SBIN_PATH=$HADOOP_HOME/sbin" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin" >> ~/.bashrc_hadoop_env
 
-echo -e "export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop" >> ~/.bashrc_hadoop_env
-echo -e "export HADOOP_LOG_DIR=$HADOOP_HOME/logs" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop" >> ~/.bashrc_hadoop_env
+echo -e "export HADOOP_LOG_DIR=\$HADOOP_HOME/logs" >> ~/.bashrc_hadoop_env
 
 echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\"" >> ~/.bashrc_hadoop_env
 echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dyarn.home='\$HADOOP_HOME'\"" >> ~/.bashrc_hadoop_env
@@ -195,7 +195,7 @@ Execute the following commands:
 ```
 export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar:$HADOOP_CLASSPATH
 
-cd %HADOOP_HOME%
+cd $HADOOP_HOME
 
 hadoop com.sun.tools.javac.Main $HADOOP_HOME/WordCount.java
 
