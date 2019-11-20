@@ -15,7 +15,6 @@ The course material :
 
 The tutorials:
 
-
 - [00 - Prepare your system for WSL](https://github.com/adadouche/esigelec-ue-lsp/tree/master/TP/00%20-%20Prepare%20your%20system%20for%20WSL.md)
 - [01 - Setup a single HDFS data node cluster](https://github.com/adadouche/esigelec-ue-lsp/tree/master/TP/01%20-%20Setup%20a%20single%20HDFS%20data%20node%20cluster.md)
 - [02 - Upload your first file in HDFS](https://github.com/adadouche/esigelec-ue-lsp/tree/master/TP/02%20-%20Upload%20your%20first%20file%20in%20HDFS.md)
