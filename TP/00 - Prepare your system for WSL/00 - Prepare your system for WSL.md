@@ -1,4 +1,4 @@
-# Prepare your system for Hadoop & Hive on WSL
+# Prepare your system for WSL
 
 ## Install Windows Subsystems for Linux
 
@@ -40,9 +40,11 @@ sudo bash -c 'echo "hadoop ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
 sudo bash -c 'echo "umask 022" >> ~/.bashrc'
 ```
 
-## re-mount your C drive
+**Make sure to adjust the user if yu choose not to use hadoop as your username.**
 
-By default your C drive is not mounted properly to allow certain operation, therefore you will need to unmount then mount it back.
+## Re-mount your C drive
+
+By default your C drive is not mounted properly to allow certain operations, therefore you will need to unmount then mount it back.
 
 In your Ubuntu terminal, execute the following command:
 
@@ -50,6 +52,8 @@ In your Ubuntu terminal, execute the following command:
 sudo umount /mnt/c
 sudo mount -t drvfs C: /mnt/c -o metadata
 ```
+
+**You might need to redo this operation if you hit errors  on folder permissions.**
 
 ## Update your Ubuntu distro
 
@@ -73,6 +77,15 @@ sudo apt-get install openjdk-8-jdk
 The JDK will be available at:
 
  - /usr/lib/jvm/java-8-openjdk-amd64/
+
+
+## Install the 7zip
+
+Then, you will need to install 7zip on your Ubuntu system using the following command:
+
+```sh
+sudo apt-get install p7zip-full
+```
 
 ## Install SSH
 
@@ -103,7 +116,7 @@ sudo service ssh restart
 Create the user key:
 
 ```sh
-rm -r .ssh
+rm -r ~/.ssh
 
 ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa -q
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys

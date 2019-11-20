@@ -4,53 +4,52 @@
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
-It assumes that you don't have an existing directory **C:\hadoop**.
+It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-Open a DOS command prompt and execute:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
+cd ~
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
 
 Now checkout the current step branch:
 
-```
-cd %HADOOP_HOME%
+```sh
+cd ~/esigelec-ue-lsp-hdp
 
-git fetch --all
-git reset --hard origin/step-01
+git reset --hard origin/new-step-01
 git clean -dfq
 ```
 
-## Set your Hadoop & Java Home
+## Set your Hadoop environment variables
 
-Open a DOS command prompt and execute:
+In your **Ubuntu** terminal, execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 ```
 
-## Start HDFS
+## Start the HDFS processes
 
-If the HDFS processes are not started yet, you will need to start.
+If the HDFS processes are not started yet, you will need to start them.
 
-In your DOS command prompt, execute the following commands to set the environment variables:
+To check if they are started you can use the ***jps*** command.
 
-```
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
-```
+If the processes are not started then execute the following commands in your **Ubuntu** terminal:
 
-Then, execute the following commands:
-
-```
-rd /S /Q %HADOOP_HOME%\tmp
+```sh
+rm -r $HADOOP_HOME/tmp/*
 
 hdfs namenode -format -force
 
-start-dfs
+start-dfs.sh
+```
+
+You can check the processes are started by using the following command:
+
+```sh
+jps
 ```
 
 ## Interact with the File System
@@ -70,7 +69,7 @@ hdfs dfs -ls /
 Now let's copy the local configuration file into it
 
 ```sh
-hdfs dfs -put %HADOOP_HOME%\etc\hadoop\*.xml /config
+hdfs dfs -put $HADOOP_HOME/etc/hadoop/*.xml /config
 ```
 
 And finally, let's check the files are here:
@@ -85,9 +84,9 @@ And visualize one:
 hdfs dfs -cat /config/yarn-site.xml
 ```
 
-## Check the NameNode Server
+## Check the Name Node Server
 
-You can also get details about HDFS and the NameNode using the following URL:
+You can also get details about HDFS and the Name Node using the following URL:
 
  - http://localhost:50070/
 
@@ -95,4 +94,10 @@ And access the file system:
 
  - http://localhost:50070/explorer.html#/
 
-You can also explore the folders stored in **%HADOOP_HOME%\tmp**
+You can also explore the folders stored in **$HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/** using `ls`:
+
+```sh
+ls $HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/
+```
+
+You can also use the `more` or `cat` command to view the file content.

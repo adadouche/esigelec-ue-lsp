@@ -4,50 +4,59 @@
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
-It assumes that you don't have an existing directory **C:\hadoop**.
+It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-Open a DOS command prompt and execute:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
+cd ~
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
 
 Now checkout the current step branch:
 
-```
-cd %HADOOP_HOME%
+```sh
+cd ~/esigelec-ue-lsp-hdp
 
-git fetch --all
-git reset --hard origin/step-02
+git reset --hard origin/new-step-02
 git clean -dfq
 ```
 
-## Set your Hadoop & Java Home
+## Set your Hadoop environment variables
 
-Open a DOS command prompt and execute:
+In your **Ubuntu** terminal, execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 ```
 
-## Create the NameNode config file as Master
+## Stop your current HDFS processes
 
-Execute the following commands:
+From the last tutorial, you started a Name Node and a Data Node process which you will need to stop before continuing.
 
+In your **Ubuntu** terminal, execute:
+
+```sh
+stop-dfs.sh
 ```
-mkdir %HADOOP_HOME%\etc\hadoop-master-nn
 
-copy /Y %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop-master-nn\core-site.xml
+You can check that the processes are stopped using the **`jps`** command.
 
-notepad %HADOOP_HOME%\etc\hadoop-master-nn\core-site.xml
+## Create the Master Name Node config file - core-site
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+mkdir $HADOOP_HOME/etc/hadoop-master-nn
+
+cp $HADOOP_HOME/etc/hadoop/core-site.xml $HADOOP_HOME/etc/hadoop-master-nn/core-site.xml
+
+nano $HADOOP_HOME/etc/hadoop-master-nn/core-site.xml
 ```
 
 Replace the file content with:
 
-```
+```sh
 <configuration>
     <property>
         <name>fs.defaultFS</name>
@@ -55,32 +64,32 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/master-nn</value>
+        <value>${hadoop.home}/tmp/hadoop-master-nn</value>
     </property>
 </configuration>
 ```
 
-Here, we have set a separate directory to store the name node files.
+Here, we have set a separate directory to store the name node temporary files.
 
 For more details about the configuration file, you can check the following link:
 
  - https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/core-default.xml
 
-## Create the DataNodes config files as Slaves
+## Create the Slaves Data Nodes config files - hdfs-site
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-mkdir %HADOOP_HOME%\etc\hadoop-slave-1-dn
+```sh
+mkdir -p $HADOOP_HOME/etc/hadoop-slave-1-dn
 
-copy /Y %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml
+cp $HADOOP_HOME/etc/hadoop/hdfs-site.xml $HADOOP_HOME/etc/hadoop-slave-1-dn/hdfs-site.xml
 
-notepad %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml
+nano $HADOOP_HOME/etc/hadoop-slave-1-dn/hdfs-site.xml
 ```
 
 Replace the file content with:
 
-```
+```xml
 <configuration>
   <property>
     <name>dfs.namenode.servicerpc-address</name>
@@ -109,36 +118,36 @@ Replace the file content with:
 </configuration>
 ```
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-mkdir %HADOOP_HOME%\etc\hadoop-slave-2-dn
-mkdir %HADOOP_HOME%\etc\hadoop-slave-3-dn
+```sh
+mkdir -p $HADOOP_HOME/etc/hadoop-slave-2-dn
+mkdir -p $HADOOP_HOME/etc/hadoop-slave-3-dn
 
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-dn\hdfs-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-dn\hdfs-site.xml
+cp $HADOOP_HOME/etc/hadoop-slave-1-dn/hdfs-site.xml    $HADOOP_HOME/etc/hadoop-slave-2-dn/hdfs-site.xml
+cp $HADOOP_HOME/etc/hadoop-slave-1-dn/hdfs-site.xml    $HADOOP_HOME/etc/hadoop-slave-3-dn/hdfs-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-dn\hdfs-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-2-dn/hdfs-site.xml
 
-powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-2' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19866', '29866' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19864', '29864' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19867', '29867' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/slave-1/slave-2/g' $xml_file
+sed -i 's/19866/29866/g' $xml_file
+sed -i 's/19864/29864/g' $xml_file
+sed -i 's/19867/29867/g' $xml_file
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-dn\hdfs-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-3-dn/hdfs-site.xml
 
-powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-3' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19866', '39866' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19864', '39864' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '19867', '39867' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/slave-1/slave-3/g' $xml_file
+sed -i 's/19866/39866/g' $xml_file
+sed -i 's/19864/39864/g' $xml_file
+sed -i 's/19867/39867/g' $xml_file
 ```
 
 You can now open the generate/modified xml file.
 
-```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1-dn\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2-dn\hdfs-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3-dn\hdfs-site.xml
+```sh
+more $HADOOP_HOME/etc/hadoop-slave-1-dn/hdfs-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-2-dn/hdfs-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-3-dn/hdfs-site.xml
 ```
 
 Here you can notice that we have assigned a set of unique port number and folder name for each slave.
@@ -147,23 +156,35 @@ For more details about the configuration file, you can check the following link:
 
 - https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml
 
+## Create the Log4j config files for all processes
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-client/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-master-nn/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-1-dn/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-2-dn/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-3-dn/log4j.properties
+````
+
 ## Create a client config files
 
-Make a copy of `%HADOOP_HOME%\etc\hadoop\hdfs-site.xml` into `%HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml`.
+Make a copy of `$HADOOP_HOME/etc/hadoop/hdfs-site.xml` into `$HADOOP_HOME/etc/hadoop-client/hdfs-site.xml`.
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-mkdir %HADOOP_HOME%\etc\hadoop-client
+```sh
+mkdir -p $HADOOP_HOME/etc/hadoop-client
 
-copy %HADOOP_HOME%\etc\hadoop\hdfs-site.xml %HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml
+cp $HADOOP_HOME/etc/hadoop/hdfs-site.xml    $HADOOP_HOME/etc/hadoop-client/hdfs-site.xml
 
-notepad %HADOOP_HOME%\etc\hadoop-client\hdfs-site.xml
+nano $HADOOP_HOME/etc/hadoop-client/hdfs-site.xml
 ```
 
 Replace the file content with:
 
-```
+```xml
 <configuration>
   <property>
     <name>dfs.replication</name>
@@ -176,17 +197,17 @@ Replace the file content with:
 </configuration>
 ```
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-copy /Y %HADOOP_HOME%\etc\hadoop\core-site.xml %HADOOP_HOME%\etc\hadoop-client\core-site.xml
+```sh
+cp $HADOOP_HOME/etc/hadoop/core-site.xml $HADOOP_HOME/etc/hadoop-client/core-site.xml
 
-notepad %HADOOP_HOME%\etc\hadoop-client\core-site.xml
+nano $HADOOP_HOME/etc/hadoop-client/core-site.xml
 ```
 
 Replace the file content with:
 
-```
+```xml
 <configuration>
     <property>
         <name>fs.defaultFS</name>
@@ -194,7 +215,7 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/client</value>
+        <value>${hadoop.home}/tmp/hadoop-client</value>
     </property>
 </configuration>
 ```
@@ -207,33 +228,82 @@ This configuration file will be used to upload the file.
 
 Before starting using your master/slave HDFS configuration, you will need to format it.
 
-In your DOS command prompt, execute the following commands to set the environment variables:
+In your **Ubuntu** terminal, execute the following commands to set the environment variables:
 
-```
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 ```
 
 Then, execute the following command:
 
-```
-hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode -format -force
-```
-
-
-## Start HDFS NameNode
-
-In a command prompt, execute the following commands:
-
-```
-start "hdfs - master namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode
+```sh
+rm -r $HADOOP_HOME/tmp/*
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
 ```
 
-## Start HDFS DateNode
+## Start HDFS Name Node
 
-In a command prompt, execute the following commands:
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode    
+```
+
+## Start HDFS Date Nodes
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn datanode
+```
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn datanode
+```
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn datanode
+```
+
+You can check that your HDFS processes are started using the following command:
+
+```sh
+jps | grep Node$
+```
+
+It should return four processes like this:
 
 ```
-start "hdfs - slave-1 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1-dn datanode
-start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-dn datanode
-start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
+21428 DataNode
+21531 DataNode
+21659 DataNode
+21324 NameNode
 ```
+
+The first column is the PID (process ID) that you can use if you want to kill a process.
+
+You can also get details about HDFS processes using the following URL:
+
+ - http://localhost:9870/
+
+With the Data Nodes:
+
+ - http://localhost:9870/dfshealth.html#tab-datanode
+
+You can now close the Ubuntu terminals for the Master Name Node & the Slave Data Nodes.

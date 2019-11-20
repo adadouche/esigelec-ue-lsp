@@ -4,59 +4,80 @@
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
-It assumes that you don't have an existing directory **C:\hadoop**.
+It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-Open a DOS command prompt and execute:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
+cd ~
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
 
 Now checkout the current step branch:
 
-```
-cd %HADOOP_HOME%
+```sh
+cd ~/esigelec-ue-lsp-hdp
 
-git fetch --all
-git reset --hard origin/step-03
+git reset --hard origin/new-step-03
 git clean -dfq
 ```
 
-## Set your Hadoop & Java Home
+## Set your Hadoop environment variables
 
-Open a DOS command prompt and execute:
+In your **Ubuntu** terminal, execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 ```
 
-## Start HDFS
+## Start HDFS processes
 
-If the HDFS processes are not started yet, you will need to start.
+You can check that your HDFS processes are started using the following command:
 
-In your DOS command prompt, execute the following commands to set the environment variables:
-
-```
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+```sh
+jps | grep Node$
 ```
 
-Then, execute the following commands:
+If the command returns 1 NameNode and 3 DataNode entries, then you don't need to start the HDFS processes again.
 
+If you need to start the HDFS processes, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+rm -rf $HADOOP_HOME/tmp
+rm -rf $HADOOP_HOME/data
+rm -rf $HADOOP_HOME/pid
+rm -rf $HADOOP_HOME/logs
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-1-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn --daemon start datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
 ```
-rd /S /Q %HADOOP_HOME%\tmp
-rd /S /Q %HADOOP_HOME%\data
 
-hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode -format -force
+You can check that your HDFS processes are started using the following command:
 
-start "hdfs - master namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode
-
-start "hdfs - slave-1 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1-dn datanode
-start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-dn datanode
-start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
+```sh
+jps | grep Node$
 ```
+
+You can also get details about HDFS processes using the following URL:
+
+ - http://localhost:9870/
 
 ## Interact with the File System
 
@@ -67,15 +88,18 @@ Download and unzip a local copy of the following link:
 You can use the following commands to download:
 
 ```sh
-powershell Invoke-WebRequest -OutFile 1500000_Sales_Records.7z http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
-```
+cd ~
+wget http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
 
-Now, you need to extract it and rename the output file like **1500000_Sales_Records.csv** instead of **1500000 Sales Records.csv**.
+7z e '1500000 Sales Records.7z'
+
+mv 1500000\ Sales\ Records.csv 1500000_Sales_Records.csv
+```
 
 Now, let's import it:
 
 ```sh
-hdfs dfs -put %HADOOP_HOME%\1500000_Sales_Records.csv /1500000_Sales_Records.default.csv
+hdfs dfs -put ~/1500000_Sales_Records.csv /1500000_Sales_Records.default.csv
 ```
 
 Here you can notice that the full path is required and no configuration file is provided.
@@ -83,31 +107,61 @@ Here you can notice that the full path is required and no configuration file is 
 Now, let's import it with a configuration file:
 
 ```sh
-hdfs --config %HADOOP_HOME%\etc\hadoop-client dfs -put %HADOOP_HOME%\1500000_Sales_Records.csv /1500000_Sales_Records.client.csv
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put ~/1500000_Sales_Records.csv /1500000_Sales_Records.client.csv
 ```
 
 And finally, let's import it with inline configuration properties:
 
 ```sh
-hdfs dfs -Ddfs.replication=3 -Ddfs.block.size=10m -put %HADOOP_HOME%\1500000_Sales_Records.csv /1500000_Sales_Records.param.csv
+hdfs dfs -Ddfs.replication=3 -Ddfs.block.size=10m -put ~/1500000_Sales_Records.csv  /1500000_Sales_Records.param.csv
 ```
 
-And finally, let's check the files are here:
+Now, let's check the files are here:
 
 ```sh
-.\bin\hdfs dfs -ls /
+hdfs dfs -ls /
 ```
 
-## Access the NameNode
+Finally, let's check the associated blocks and replica using the following command:
 
-You can also get details about HDFS and the NameNode using the following URL:
+```sh
+hdfs fsck / -files -blocks
+```
 
- - http://localhost:50070/
-
-And access the file system:
+You can also get these details using the following URL:
 
  - http://localhost:50070/explorer.html#/
 
 You can notice that the files have different settings for the replica and the block size.
 
-You can also explore the folders stored in **%HADOOP_HOME%\tmp** & **%HADOOP_HOME%\data**
+## Stop HDFS processes
+
+You can check that your HDFS processes are started using the following command:
+
+```sh
+jps | grep Node$
+```
+
+If the command returns any entries, then you need to stop the HDFS processes using the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon stop namenode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn --daemon stop datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon stop datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon stop datanode
+```
+
+You can check that your HDFS processes are stopped using the following command which should return no results:
+
+```sh
+jps | grep Node$
+```

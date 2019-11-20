@@ -4,71 +4,74 @@
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
-It assumes that you don't have an existing directory **C:\hadoop**.
+It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-Open a DOS command prompt and execute:
-
-```sh
-set HADOOP_HOME=C:\hadoop
-
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
-```
-
-Now checkout the current step branch:
-
-```
-cd %HADOOP_HOME%
-
-git fetch --all
-git reset --hard origin/step-00
-git clean -dfq
-```
-
-## Configure the Hadoop environment
-
-##### Extend the Hadoop environment variables
-
-In your DOS command prompt, execute:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
-notepad %HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+cd ~
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
 
-Locate the following line:
+## Download the Hadoop 3.2.1 distribution
 
-```
-@rem Set Hadoop-specific environment variables here.
-```
-
-and add the following content right after:
+In your **Ubuntu** terminal, execute:
 
 ```sh
-for %%I in ("%JAVA_HOME%") do (
-  set "JAVA_HOME=%%~sI"
-)
-set "JAVA_HOME=%JAVA_HOME:\=/%"
-
-set "USERNAME=%USERNAME: =_%"
-
-set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
-set HADOOP_SBIN_PATH=%HADOOP_HOME%\sbin
-set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
-set HADOOP_LOG_DIR=%HADOOP_HOME%\logs
-
-set PATH=%PATH%;%HADOOP_BIN_PATH%
-set PATH=%PATH%;%HADOOP_SBIN_PATH%
-
-set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
-
-set HADOOP_OPTS=-Dhadoop.home=%HADOOP_HOME_OPTS%
+cd ~
+wget http://apache.crihan.fr/dist/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
 ```
 
-##### Configure the core-site.xml file
+## Extract the Hadoop 3.2.1 distribution into the Git Folder
 
-In your DOS command prompt, execute:
+In your **Ubuntu** terminal, execute:
 
 ```sh
-notepad %HADOOP_HOME%\etc\hadoop\core-site.xml
+cd ~
+tar xvf hadoop-3.2.1.tar.gz -C ~/esigelec-ue-lsp-hdp --exclude='hadoop-3.2.1/share/doc'
+```
+
+The documentation is not extracted as it is available online if needed.
+
+## Configure the your environment with Hadoop environment variables
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+rm $ENV_FILE
+
+echo -e "umask 022" > $ENV_FILE
+
+echo -e "export LSP_HOME=$(echo ~)/esigelec-ue-lsp-hdp" >> $ENV_FILE
+
+echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $ENV_FILE
+echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1" >> $ENV_FILE
+
+echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin" >> $ENV_FILE
+echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin" >> $ENV_FILE
+
+echo -e "export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop" >> $ENV_FILE
+echo -e "export HADOOP_LOG_DIR=\$HADOOP_HOME/logs" >> $ENV_FILE
+
+echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\"" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+
+echo -e "export PATH=\$PATH:\$HADOOP_BIN_PATH" >> $ENV_FILE
+echo -e "export PATH=\$PATH:\$HADOOP_SBIN_PATH" >> $ENV_FILE
+echo -e "export PATH=\$PATH:\$JAVA_HOME/bin" >> $ENV_FILE
+
+echo -e "source $ENV_FILE" >> ~/.bashrc
+
+source $ENV_FILE
+```
+
+## Configure the core-site.xml file
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+nano $HADOOP_HOME/etc/hadoop/core-site.xml
 ```
 
 Paste in the following configuration:
@@ -81,7 +84,7 @@ Paste in the following configuration:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/hadoop-${user.name}</value>
+        <value>${hadoop.home}/tmp/hadoop</value>
     </property>
 </configuration>
 ```
@@ -89,25 +92,6 @@ Paste in the following configuration:
 For more details about the configuration file, you can check the following link:
 
  - https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/core-default.xml
-
-##### Configure the hdfs-site.xml file
-
-In your DOS command prompt, execute:
-
-```sh
-notepad %HADOOP_HOME%\etc\hadoop\hdfs-site.xml
-```
-
-Paste in the following configuration:
-
-```xml
-<configuration>
-  <property>
-    <name>dfs.replication</name>
-    <value>1</value>
-  </property>
-</configuration>
-```
 
 For more details about the configuration file, you can check the following link:
 
@@ -117,20 +101,9 @@ For more details about the configuration file, you can check the following link:
 
 Before starting using the HDFS, you will need to format it.
 
-In your DOS command prompt, execute the following commands to set the environment variables:
+In your **Ubuntu** terminal, execute the following command to format the Name Node:
 
-```
-set HADOOP_HOME=C:\hadoop
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
-
-cd %HADOOP_HOME%
-
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
-```
-
-Then, execute the following commands:
-
-```
+```sh
 hdfs namenode -format -force
 ```
 
@@ -140,6 +113,37 @@ This will format the name node `dfs`.
 
 In a command prompt, execute the following commands:
 
+```sh
+start-dfs.sh
 ```
-start-dfs
+
+> ### **Note:**
+> if you receive the following error message:
 ```
+localhost: ssh: connect to host localhost port 22: Connection refused
+```
+> then execute the following commands to restart ssh:
+```sh
+sudo service ssh restart
+```
+
+You can check the processes are started by using the following command:
+
+```sh
+jps
+```
+
+It should return four processes like this:
+
+```
+16130 SecondaryNameNode
+16274 Jps
+15718 NameNode
+15900 DataNode
+```
+
+The first column is the PID (process ID) that you can use if you want to kill a process.
+
+You can also get details about HDFS and the Name Node using the following URL:
+
+ - http://localhost:9870/

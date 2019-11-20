@@ -12,5 +12,3 @@ The course material :
 - [07 - MapReduce.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/07%20-%20MapReduce.pdf)
 - [08 - MapReduce Explained.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/08%20-%20MapReduce%20Explained.pdf)
 - [09 - Hive.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/09%20-%20Hive.pdf)
-
-The tutorials:

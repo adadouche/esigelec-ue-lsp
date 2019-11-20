@@ -4,89 +4,145 @@
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
-It assumes that you don't have an existing directory **C:\hadoop**.
+It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-Open a DOS command prompt and execute:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-
-git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git %HADOOP_HOME%
+cd ~
+git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
 
 Now checkout the current step branch:
 
-```
-cd %HADOOP_HOME%
+```sh
+cd ~/esigelec-ue-lsp-hdp
 
-git fetch --all
-git reset --hard origin/step-04
+git reset --hard origin/new-step-04
 git clean -dfq
 ```
 
-## Set your Hadoop & Java Home
+## Set your Hadoop environment variables
 
-Open a DOS command prompt and execute:
+In your **Ubuntu** terminal, execute:
 
 ```sh
-set HADOOP_HOME=C:\hadoop
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_221
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 ```
 
 ## Extend the YARN environment variables
 
-In your DOS command prompt, execute:
+In your **Ubuntu** terminal, execute the following commands:
 
 ```sh
-notepad %HADOOP_HOME%\etc\hadoop\yarn-env.cmd
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
+
+echo -e "export /"YARN_OPTS=/$YARN_OPTS -Dyarn.home='/$HADOOP_HOME'/"" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
+echo -e "export /"YARN_OPTS=/$YARN_OPTS -Dhadoop.home='/$HADOOP_HOME'/"" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
 ```
 
-Locate the following line:
+## Create the Master Resource Manager config file - core-site
 
-```
-@rem limitations under the License.
-```
+In your **Ubuntu** terminal, execute the following commands:
 
-and add the following content right after:
+```sh
+mkdir -p "$HADOOP_HOME/etc/hadoop-master-rm"
 
-```
-set HADOOP_YARN_HOME=%HADOOP_HOME%
+cp "$HADOOP_HOME/etc/hadoop/core-site.xml" "$HADOOP_HOME/etc/hadoop-master-rm/core-site.xml"
 
-
-for %%I in ("%JAVA_HOME%") do (
-  set "JAVA_HOME=%%~sI"
-)
-set "JAVA_HOME=%JAVA_HOME:\=/%"
-
-set HADOOP_BIN_PATH=%HADOOP_HOME%\bin
-set HADOOP_SBIN_PATH=%HADOOP_HOME%\sbin
-set HADOOP_CONF_DIR=%HADOOP_HOME%\etc\hadoop
-set HADOOP_LOG_DIR=%HADOOP_HOME%\logs
-
-set PATH=%PATH%;%HADOOP_BIN_PATH%
-set PATH=%PATH%;%HADOOP_SBIN_PATH%
-
-set "HADOOP_HOME_OPTS=%HADOOP_HOME:\=/%"
-
-set YARN_OPTS=%YARN_OPTS% -Dyarn.home=%HADOOP_HOME_OPTS%
-set YARN_OPTS=%YARN_OPTS% -Dhadoop.home=%HADOOP_HOME_OPTS%
-```
-
-## Create the Resource Manager config file as master
-
-Execute the following commands:
-
-```
-mkdir "%HADOOP_HOME%\etc\hadoop-master-rm"
-
-copy /Y "%HADOOP_HOME%\etc\hadoop\yarn-site.xml" "%HADOOP_HOME%\etc\hadoop-master-rm\yarn-site.xml"
-
-notepad "%HADOOP_HOME%\etc\hadoop-master-rm\yarn-site.xml"
+nano "$HADOOP_HOME/etc/hadoop-master-rm/core-site.xml"
 ```
 
 Replace the file content with:
 
+```xml
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>${yarn.home}/tmp/hadoop-master-rm</value>
+    </property>
+</configuration>
 ```
+
+## Create the Master Resource Manager config file - yarn-site
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+cp "$HADOOP_HOME/etc/hadoop/yarn-site.xml" "$HADOOP_HOME/etc/hadoop-master-rm/yarn-site.xml"
+
+nano "$HADOOP_HOME/etc/hadoop-master-rm/yarn-site.xml"
+```
+
+Replace the file content with:
+
+```xml
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+    <property>
+        <name>yarn.node-attribute.fs-store.root-dir</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>localhost</value>
+    </property>    
+</configuration>
+```
+
+## Create the Master Resource Manager config file - capacity-scheduler
+
+Now, create the capacity scheduler configuration.
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+nano "$HADOOP_HOME/etc/hadoop-master-rm/capacity-scheduler.xml"
+```
+
+Replace the file content with:
+
+```xml
+<configuration>
+	<property>
+		<name>yarn.scheduler.capacity.root.queues</name>
+		<value>default</value>
+	</property>
+	<property>
+		<name>yarn.scheduler.capacity.root.default.capacity</name>
+		<value>100</value>
+	</property>
+</configuration>
+```
+
+## Create the Slaves Node Manager config file - yarn-site
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+mkdir -p "$HADOOP_HOME/etc/hadoop-slave-1-nm"
+
+cp "$HADOOP_HOME/etc/hadoop/yarn-site.xml" "$HADOOP_HOME/etc/hadoop-slave-1-nm/yarn-site.xml"
+
+nano "$HADOOP_HOME/etc/hadoop-slave-1-nm/yarn-site.xml"
+```
+
+Replace the file content with:
+
+```xml
 <configuration>
     <property>
         <name>yarn.nodemanager.aux-services</name>
@@ -100,58 +156,8 @@ Replace the file content with:
         <name>yarn.resourcemanager.hostname</name>
         <value>localhost</value>
     </property>
-</configuration>
-```
-
-Now, create the capacity scheduler configuration.
-
-Execute the following commands:
-
-```
-notepad "%HADOOP_HOME%\etc\hadoop-master-rm\capacity-scheduler.xml
-```
-
-Replace the file content with:
-
-```
-<configuration>
-	<property>
-		<name>yarn.scheduler.capacity.root.queues</name>
-		<value>default</value>
-	</property>
-	<property>
-		<name>yarn.scheduler.capacity.root.default.capacity</name>
-		<value>100</value>
-	</property>
-</configuration>
-```
-
-## Create the Node Manager config file as slaves
-
-Execute the following commands:
-
-```
-mkdir "%HADOOP_HOME%\etc\hadoop-slave-1-nm"
-
-copy "%HADOOP_HOME%\etc\hadoop\yarn-site.xml" "%HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml"
-
-notepad "%HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml"
-```
-
-Replace the file content with:
-
-```
-<configuration>
     <property>
-        <name>yarn.nodemanager.aux-services</name>
-        <value>mapreduce_shuffle</value>
-    </property>
-    <property>
-        <name>yarn.nodemanager.env-whitelist</name>
-        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
-    </property>
-    <property>
-        <name>yarn.resourcemanager.hostname</name>
+        <name>yarn.nodemanager.hostname</name>
         <value>localhost</value>
     </property>
     <property>
@@ -165,45 +171,47 @@ Replace the file content with:
 </configuration>
 ```
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-mkdir "%HADOOP_HOME%\etc\hadoop-slave-2-nm"
-mkdir "%HADOOP_HOME%\etc\hadoop-slave-3-nm"
+```sh
+mkdir -p "$HADOOP_HOME/etc/hadoop-slave-2-nm"
+mkdir -p "$HADOOP_HOME/etc/hadoop-slave-3-nm"
 
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-nm\yarn-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-nm\yarn-site.xml
+cp $HADOOP_HOME/etc/hadoop-slave-1-nm/yarn-site.xml $HADOOP_HOME/etc/hadoop-slave-2-nm/yarn-site.xml
+cp $HADOOP_HOME/etc/hadoop-slave-1-nm/yarn-site.xml $HADOOP_HOME/etc/hadoop-slave-3-nm/yarn-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-nm\yarn-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-2-nm/yarn-site.xml
 
-powershell -Command "(gc %xml_file%) -replace '8140', '8240' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '8142', '8242' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/8140/8240/g' $xml_file
+sed -i 's/8142/8242/g' $xml_file
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-nm\yarn-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-3-nm/yarn-site.xml
 
-powershell -Command "(gc %xml_file%) -replace '8140', '8340' | Out-File -encoding ASCII %xml_file%"
-powershell -Command "(gc %xml_file%) -replace '8142', '8342' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/8140/8340/g' $xml_file
+sed -i 's/8142/8342/g' $xml_file
 ```
 
 You can now open the generate/modified xml file.
 
-```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1-nm\yarn-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2-nm\yarn-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3-nm\yarn-site.xml
+```sh
+more $HADOOP_HOME/etc/hadoop-slave-1-nm/yarn-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-2-nm/yarn-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-3-nm/yarn-site.xml
 ```
 
-Execute the following commands:
+## Create the Slaves Node Manager config file - mapred-site
 
-```
-copy /Y "%HADOOP_HOME%\etc\hadoop\mapred-site.xml.template" "%HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml"
+In your **Ubuntu** terminal, execute the following commands:
 
-notepad "%HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml"
+```sh
+cp "$HADOOP_HOME/etc/hadoop/mapred-site.xml" "$HADOOP_HOME/etc/hadoop-slave-1-nm/mapred-site.xml"
+
+nano "$HADOOP_HOME/etc/hadoop-slave-1-nm/mapred-site.xml"
 ```
 
 Replace the file content with:
 
-```
+```xml
 <configuration>
     <property>
         <name>mapreduce.framework.name</name>
@@ -220,40 +228,42 @@ Replace the file content with:
 </configuration>
 ```
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-nm\mapred-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-nm\mapred-site.xml
+```sh
+cp $HADOOP_HOME/etc/hadoop-slave-1-nm/mapred-site.xml $HADOOP_HOME/etc/hadoop-slave-2-nm/mapred-site.xml
+cp $HADOOP_HOME/etc/hadoop-slave-1-nm/mapred-site.xml $HADOOP_HOME/etc/hadoop-slave-3-nm/mapred-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-nm\mapred-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-2-nm/mapred-site.xml
 
-powershell -Command "(gc %xml_file%) -replace '13562', '23562' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/13562/23562/g' $xml_file
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-nm\mapred-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-3-nm/mapred-site.xml
 
-powershell -Command "(gc %xml_file%) -replace '13562', '33562' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/13562/33562/g' $xml_file
 ```
 
 You can now open the generate/modified xml file.
 
-```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1-nm\mapred-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2-nm\mapred-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3-nm\mapred-site.xml
+```sh
+more $HADOOP_HOME/etc/hadoop-slave-1-nm/mapred-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-2-nm/mapred-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-3-nm/mapred-site.xml
 ```
 
-Execute the following commands:
+## Create the Slaves Node Manager config file - core-site
 
-```
-copy /Y "%HADOOP_HOME%\etc\hadoop\core-site.xml" "%HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml"
+In your **Ubuntu** terminal, execute the following commands:
 
-notepad "%HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml"
+```sh
+cp "$HADOOP_HOME/etc/hadoop/core-site.xml" "$HADOOP_HOME/etc/hadoop-slave-1-nm/core-site.xml"
+
+nano "$HADOOP_HOME/etc/hadoop-slave-1-nm/core-site.xml"
 ```
 
 Replace the file content with:
 
-```
+```xml
 <configuration>
     <property>
         <name>fs.defaultFS</name>
@@ -261,79 +271,215 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/slave-1-nm</value>
+        <value>/${hadoop.home}/tmp/hadoop-slave-1-nm</value>
     </property>
 </configuration>
 ```
 
-Execute the following commands:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml %HADOOP_HOME%\etc\hadoop-slave-2-nm\core-site.xml
-copy /Y %HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml %HADOOP_HOME%\etc\hadoop-slave-3-nm\core-site.xml
+```sh
+cp $HADOOP_HOME/etc/hadoop-slave-1-nm/core-site.xml $HADOOP_HOME/etc/hadoop-slave-2-nm/core-site.xml
+cp $HADOOP_HOME/etc/hadoop-slave-1-nm/core-site.xml $HADOOP_HOME/etc/hadoop-slave-3-nm/core-site.xml
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-2-nm\core-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-2-nm/core-site.xml
 
-powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-2' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/slave-1/slave-2/g' $xml_file
 
-set xml_file=%HADOOP_HOME%\etc\hadoop-slave-3-nm\core-site.xml
+export xml_file=$HADOOP_HOME/etc/hadoop-slave-3-nm/core-site.xml
 
-powershell -Command "(gc %xml_file%) -replace 'slave-1', 'slave-3' | Out-File -encoding ASCII %xml_file%"
+sed -i 's/slave-1/slave-3/g' $xml_file
 ```
 
 You can now open the generate/modified xml file.
 
-```
-notepad %HADOOP_HOME%\etc\hadoop-slave-1-nm\core-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-2-nm\core-site.xml
-notepad %HADOOP_HOME%\etc\hadoop-slave-3-nm\core-site.xml
-```
-
-
-## Start HDFS NameNode & DataNode process
-
-If the HDFS processes are not started yet, you will need to start.
-
-In your DOS command prompt, execute the following commands to set the environment variables:
-
-```
-%HADOOP_HOME%\etc\hadoop\hadoop-env.cmd
+```sh
+more $HADOOP_HOME/etc/hadoop-slave-1-nm/core-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-2-nm/core-site.xml
+more $HADOOP_HOME/etc/hadoop-slave-3-nm/core-site.xml
 ```
 
-Then, execute the following command:
+## Create the Log4j config files for all processes
+
+In your **Ubuntu** terminal, execute the following commands:
 
 ```sh
-rd /S /Q %HADOOP_HOME%\tmp
-rd /S /Q %HADOOP_HOME%\data
-
-hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode -format -force
-
-start "hdfs - master namenode" hdfs --config %HADOOP_HOME%\etc\hadoop-master-nn namenode
-
-start "hdfs - slave-1 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-1-dn datanode
-start "hdfs - slave-2 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-2-dn datanode
-start "hdfs - slave-3 datanode" hdfs --config %HADOOP_HOME%\etc\hadoop-slave-3-dn datanode
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-master-rm/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-1-nm/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-2-nm/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-3-nm/log4j.properties
 ```
 
-## Start YARN Resource Manager and Node Manager daemon
+## Extend the client config files - mapred-site
 
-In your DOS command prompt, execute the following commands to set the environment variables:
+In your **Ubuntu** terminal, execute the following commands:
 
-```
-%HADOOP_HOME%\etc\hadoop\yarn-env.cmd
-```
+```sh
+cp "$HADOOP_HOME/etc/hadoop/mapred-site.xml" "$HADOOP_HOME/etc/hadoop-client/mapred-site.xml"
 
-Then, execute the following command:
-
-```
-start "yarn - master resourcemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-master-rm" resourcemanager
-
-start "yarn - slave-1 nodemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-1-nm" nodemanager
-start "yarn - slave-2 nodemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-2-nm" nodemanager
-start "yarn - slave-3 nodemanager" yarn --config "%HADOOP_HOME%\etc\hadoop-slave-3-nm" nodemanager
+nano "$HADOOP_HOME/etc/hadoop-client/mapred-site.xml"
 ```
 
-You can check the status of your cluster using the following links:
+Replace the file content with:
 
- - Name Node : http://localhost:50070/
- - Resource Manager	: http://localhost:8088/
+```xml
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+</configuration>
+```
+
+## Extend the client config files - yarn-site
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+cp "$HADOOP_HOME/etc/hadoop/mapred-site.xml" "$HADOOP_HOME/etc/hadoop-client/yarn-site.xml"
+
+nano "$HADOOP_HOME/etc/hadoop-client/yarn-site.xml"
+```
+
+Replace the file content with:
+
+```xml
+<configuration>
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>localhost</value>
+    </property>
+</configuration>
+```
+
+## Start HDFS processes
+
+You can check that your HDFS processes are started using the following command:
+
+```sh
+jps | grep Node$
+```
+
+If the command returns 1 NameNode and 3 DataNode entries, then you don't need to start the HDFS processes again.
+
+If you need to start the HDFS processes, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+rm -rf $HADOOP_HOME/tmp
+rm -rf $HADOOP_HOME/data
+rm -rf $HADOOP_HOME/pid
+rm -rf $HADOOP_HOME/logs
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-1-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn --daemon start datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
+```
+
+You can check that your HDFS processes are started using the following command:
+
+```sh
+jps | grep Node$
+```
+
+You can also get details about HDFS processes using the following URL:
+
+ - http://localhost:9870/
+
+## Start the Master Resource Manager
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm
+yarn --config $HADOOP_HOME/etc/hadoop-master-rm resourcemanager
+```
+
+
+## Start the Slaves Node Manager
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-nm
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-1-nm
+yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm nodemanager
+```
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-nm
+yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm nodemanager
+```
+
+Open a new **Ubuntu** terminal, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
+yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm nodemanager
+```
+
+You can check the status of your cluster using the following link:
+
+ - Resource Manager	: http://localhost:8088/cluster/nodes
+
+You can now close each of the Ubuntu terminal for the Master Resource Manager & Slaves Node Manager.
+
+## Stop HDFS processes
+
+You can check that your HDFS processes are started using the following command:
+
+```sh
+jps | grep Node$
+```
+
+If the command returns any entries, then you need to stop the HDFS processes using the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon stop namenode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn --daemon stop datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon stop datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon stop datanode
+```
+
+You can check that your HDFS processes are stopped using the following command which should return no results:
+
+```sh
+jps | grep Node$
+```
