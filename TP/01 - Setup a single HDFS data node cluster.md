@@ -67,7 +67,7 @@ In your **Ubuntu** terminal, execute:
 export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 export HADOOP_HOME=$(echo ~)/esigelec-ue-lsp-hdp/hadoop-3.2.1
 
-rm $ENV_FILE
+rm -f $ENV_FILE
 
 echo -e "umask 022" > $ENV_FILE
 
@@ -180,3 +180,11 @@ The first column is the PID (process ID) that you can use if you want to kill a 
 You can also get details about HDFS and the Name Node using the following URL:
 
  - http://localhost:9870/
+
+## Stop HDFS daemons
+
+In a command prompt, execute the following commands:
+
+```sh
+stop-dfs.sh
+ ```

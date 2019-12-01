@@ -67,21 +67,11 @@ git reset --hard origin/new-step-04
 git clean -dfq
 ```
 
-## Set your Hadoop environment variables
-
-In your **Ubuntu** terminal, execute:
-
-```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-```
-
 ## Extend the YARN environment variables
 
 In your **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
 
 echo -e "export /"YARN_OPTS=/$YARN_OPTS -Dyarn.home='/$HADOOP_HOME'/"" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
@@ -316,7 +306,7 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>/${hadoop.home}/tmp/hadoop-slave-1-nm</value>
+        <value>${hadoop.home}/tmp/hadoop-slave-1-nm</value>
     </property>
 </configuration>
 ```
@@ -441,47 +431,40 @@ You can also get details about HDFS processes using the following URL:
 
 ## Start the Master Resource Manager
 
+**Before starting the YARN processes, make sure that the HDFS process are properly started and not in SAFE mode.**
+
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm
-yarn --config $HADOOP_HOME/etc/hadoop-master-rm resourcemanager
+yarn --config $HADOOP_HOME/etc/hadoop-master-rm resourcemanager &
 ```
-
 
 ## Start the Slaves Node Manager
 
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-nm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-1-nm
-yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm nodemanager
+yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm nodemanager &
 ```
 
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-nm
-yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm nodemanager
+yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm nodemanager &
 ```
 
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
-yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm nodemanager
+yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm nodemanager &
 ```
 
 You can check the status of your cluster using the following link:
@@ -490,12 +473,12 @@ You can check the status of your cluster using the following link:
 
 You can now close each of the Ubuntu terminal for the Master Resource Manager & Slaves Node Manager.
 
-## Stop HDFS processes
+## Stop HDFS & Yarn processes
 
-You can check that your HDFS processes are started using the following command:
+You can check that your HDFS & Yarn processes are started using the following command:
 
 ```sh
-jps | grep Node$
+jps | grep -E 'Node|Manager'$
 ```
 
 If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
@@ -512,16 +495,28 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon stop datanode
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon stop datanode
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
+yarn --config $HADOOP_HOME/etc/hadoop-master-rm --daemon stop resourcemanager
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-nm
+yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm --daemon stop nodemanager
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
+yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm --daemon stop nodemanager
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
+yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon stop nodemanager
 ```
 
-You can check that your HDFS processes are stopped using the following command which should return no results:
+You can check that your HDFS & Yarn processes are stopped using the following command which should return no results:
 
 ```sh
-jps | grep Node$
+jps | grep -E 'Node|Manager'$
 ```
 
 If processes remains in the list then you can execute the following commands to kill them:
 
 ```sh
-kill $(jps -mlV | grep Node$ | awk '{ print $1 }')
+kill $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
 ```

@@ -32,14 +32,6 @@ git reset --hard origin/new-step-03
 git clean -dfq
 ```
 
-## Set your Hadoop environment variables
-
-In your **Ubuntu** terminal, execute:
-
-```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-```
-
 ## Start HDFS processes
 
 You can check that your HDFS processes are started using the following command:
@@ -55,8 +47,15 @@ If the command returns the following, then you don't need to start the HDFS proc
 If you need to start the HDFS & Yarn processes, execute the following commands:
 
 ```sh
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
-export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
+rm -rf $HADOOP_HOME/tmp/*
+rm -rf $HADOOP_HOME/data/*
+rm -rf $HADOOP_HOME/logs/*
+rm -rf $HADOOP_HOME/pid/*
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+
+export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
+export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn

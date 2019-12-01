@@ -62,7 +62,7 @@ In your **Ubuntu** terminal, execute:
 export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
 export HIVE_HOME=$(echo ~)/esigelec-ue-lsp-hdp/hive-3.1.2
 
-rm $ENV_FILE
+rm -f $ENV_FILE
 
 echo -e "umask 022" > $ENV_FILE
 
@@ -74,6 +74,8 @@ echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf" >> $ENV_FILE
 echo -e "export PATH=\$PATH:\$HIVE_HOME/bin" >> $ENV_FILE
 
 echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhive.home='\$HIVE_HOME' \"" >> $ENV_FILE
+
+cp $HIVE_HOME/conf/hive-env.sh.template $HIVE_HOME/conf/hive-env.sh
 
 export LINE="export HADOOP_HOME=$LSP_HOME/hadoop-3.2.1"
 grep -qF "$LINE" $HIVE_HOME/conf/hive-env.sh || echo -e $LINE >> $HIVE_HOME/conf/hive-env.sh
@@ -114,7 +116,7 @@ You can check that your HDFS & Yarn processes are started using the following co
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns the following, then you don't need to start the HDFS processes again:
+If the command returns the following, then you don't need to start the HDFS & Yarn processes again:
  - 1 Name Node
  - 3 Data Node
  - 1 Resource Manager
@@ -138,6 +140,8 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
+
+sleep 30
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm
@@ -204,6 +208,7 @@ Replace the file content with:
 	</property>
 </configuration>
 ```
+
 ## Configure Hive - Initialize the Hive Meta store
 
 You can cleanup previous experiments using the following commands:
@@ -241,7 +246,7 @@ Metastore schema version:        3.1.0
 
 ## Start Hive
 
-Open a new **Ubuntu** terminal, execute the following commands:
+Open a separate new **Ubuntu** terminal, execute the following commands:
 
 ```sh
 hiveserver2 &
@@ -259,6 +264,21 @@ You can also check that the process is running using the following command in yo
 ```sh
 jps -mlV | grep HiveServer2
 ```
+
+You will have to wait for 4 **Hive Session ID** entries to be displayed in order to consider that Hive is properly started:
+
+```
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/hadoop/esigelec-ue-lsp-hdp/hive-3.1.2/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/share/hadoop/common/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Metastore connection URL:        jdbc:derby:;databaseName=/home/hadoop/esigelec-ue-lsp-hdp/hive-3.1.2/metastore_db;create=true
+Metastore Connection Driver :    org.apache.derby.jdbc.EmbeddedDriver
+Metastore connection User:       APP
+Hive distribution version:       3.1.0
+Metastore schema version:        3.1.0
+````
 
 ## Stop Hive processes
 

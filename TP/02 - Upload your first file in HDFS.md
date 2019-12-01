@@ -32,14 +32,6 @@ git reset --hard origin/new-step-01
 git clean -dfq
 ```
 
-## Set your Hadoop environment variables
-
-In your **Ubuntu** terminal, execute:
-
-```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-```
-
 ## Start the HDFS processes
 
 If the HDFS processes are not started yet, you will need to start them.
@@ -49,10 +41,6 @@ To check if they are started you can use the ***jps*** command.
 If the processes are not started then execute the following commands in your **Ubuntu** terminal:
 
 ```sh
-rm -r $HADOOP_HOME/tmp/*
-
-hdfs namenode -format -force
-
 start-dfs.sh
 ```
 

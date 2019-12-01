@@ -58,14 +58,6 @@ git reset --hard origin/new-step-02
 git clean -dfq
 ```
 
-## Set your Hadoop environment variables
-
-In your **Ubuntu** terminal, execute:
-
-```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-```
-
 ## Stop your current HDFS processes
 
 From the last tutorial, you started a Name Node and a Data Node process which you will need to stop before continuing.
@@ -192,18 +184,6 @@ For more details about the configuration file, you can check the following link:
 
 - https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml
 
-## Create the Log4j config files for all processes
-
-In your **Ubuntu** terminal, execute the following commands:
-
-```sh
-cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-client/log4j.properties
-cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-master-nn/log4j.properties
-cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-1-dn/log4j.properties
-cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-2-dn/log4j.properties
-cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-3-dn/log4j.properties
-````
-
 ## Create a client config files
 
 Make a copy of `$HADOOP_HOME/etc/hadoop/hdfs-site.xml` into `$HADOOP_HOME/etc/hadoop-client/hdfs-site.xml`.
@@ -258,23 +238,32 @@ Replace the file content with:
 
 This configuration file will be used to upload the file.
 
+## Create the Log4j config files for all processes
+
+In your **Ubuntu** terminal, execute the following commands:
+
+```sh
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-client/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-master-nn/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-1-dn/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-2-dn/log4j.properties
+cp $HADOOP_HOME/etc/hadoop/log4j.properties $HADOOP_HOME/etc/hadoop-slave-3-dn/log4j.properties
+```
+
 ## Initialize HDFS
 
 > **Make sure your previous NameNode & DataNode processes are shutdown before continuing!!!**
 
 Before starting using your master/slave HDFS configuration, you will need to format it.
 
-In your **Ubuntu** terminal, execute the following commands to set the environment variables:
-
-```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-```
-
-Then, execute the following command:
+In your **Ubuntu** terminal, execute the following commands :
 
 ```sh
 rm -rf $HADOOP_HOME/tmp/*
 rm -rf $HADOOP_HOME/data/*
+rm -rf $HADOOP_HOME/logs/*
+rm -rf $HADOOP_HOME/pid/*
+
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
 ```
 
@@ -283,10 +272,8 @@ hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode    
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode &
 ```
 
 ## Start HDFS Date Nodes
@@ -294,28 +281,22 @@ hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-1-dn
-hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn datanode
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn datanode &
 ```
 
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
-hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn datanode
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn datanode &
 ```
 
 Open a new **Ubuntu** terminal, execute the following commands:
 
 ```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
-hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn datanode
+hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn datanode &
 ```
 
 You can check that your HDFS processes are started using the following command:

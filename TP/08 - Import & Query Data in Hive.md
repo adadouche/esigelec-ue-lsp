@@ -38,7 +38,7 @@ You can check that your HDFS & Yarn processes are started using the following co
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns the following, then you don't need to start the HDFS processes again:
+If the command returns the following, then you don't need to start the HDFS & Yarn processes again:
  - 1 Name Node
  - 3 Data Node
  - 1 Resource Manager
@@ -62,6 +62,8 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
+
+sleep 30
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm
@@ -145,6 +147,7 @@ Execute the following statements in your Beeline session:
 ```sql
 CREATE TABLE pokes (foo INT, bar STRING);
 ```
+
 You can notice that the tables are now also present in HDFS but empty:
 
  - http://localhost:9870/explorer.html#/user/hive/warehouse
