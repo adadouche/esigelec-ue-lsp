@@ -1,57 +1,12 @@
 # Setup your cluster for MapReduce
 
-## Goal
-
-In this tutorial, using your ***simulated*** a multi node Hadoop cluster, you will start the corresponding YARN/MapReduce processes.
-
-To do so, you will create an additional series of subfolders that will be used by each ***fake*** node processes as their ***etc/hadoop*** configuration directory.
-
-In the end, you folder structure will look like this:
-
-```
-$HADOOP_HOME
-|-- etc
-    |-- hadoop-master-rm
-    |   |-- core-site.xml
-    |   |-- yarn-site.xml
-    |   |-- capacity-scheduler.xml
-    |   |-- log4j.properties    
-    |-- hadoop-slave-1-nm
-    |   |-- core-site.xml
-    |   |-- mapred-site.xml
-    |   |-- yarn-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-slave-2-nm
-    |   |-- core-site.xml
-    |   |-- mapred-site.xml
-    |   |-- yarn-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-slave-3-nm
-    |   |-- core-site.xml
-    |   |-- mapred-site.xml
-    |   |-- yarn-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-client
-        |-- core-site.xml
-        |-- hdfs-site.xml
-        |-- mapred-site.xml
-```
-
-Once the directory structure is created, you will format the ***master Resource Manager*** and then start it in a separate shell window along with the 3 ***slave Node Manager*** processes.
-
-The reason, you will use distinct shell windows is to allow you to monitor the logs.
-
-In the *"real life"*, you would browse the logs instead using a *mode* command.
-
-As you will notice, a specific PID / log folder will be set before starting each process, else you won't be able to have them running on the same host.
-
 ## Prerequisites
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
 It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-If you didn't clone the repository yet, you can do so using the following command:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
 cd ~
@@ -405,13 +360,20 @@ You can check that your HDFS processes are started using the following command:
 jps | grep Node$
 ```
 
-If the command returns the following, then you don't need to start the HDFS processes again:
- - 1 Name Node
- - 3 Data Node
+If the command returns 1 NameNode and 3 DataNode entries, then you don't need to start the HDFS processes again.
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+If you need to start the HDFS processes, execute the following commands:
 
 ```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+rm -rf $HADOOP_HOME/tmp
+rm -rf $HADOOP_HOME/data
+rm -rf $HADOOP_HOME/pid
+rm -rf $HADOOP_HOME/logs
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
+
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
@@ -437,7 +399,7 @@ jps | grep Node$
 
 You can also get details about HDFS processes using the following URL:
 
- - Name Node : http://localhost:9870/
+ - http://localhost:9870/
 
 ## Start the Master Resource Manager
 
@@ -498,9 +460,11 @@ You can check that your HDFS processes are started using the following command:
 jps | grep Node$
 ```
 
-If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
+If the command returns any entries, then you need to stop the HDFS processes using the following commands:
 
 ```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon stop namenode
 
@@ -518,10 +482,4 @@ You can check that your HDFS processes are stopped using the following command w
 
 ```sh
 jps | grep Node$
-```
-
-If processes remains in the list then you can execute the following commands to kill them:
-
-```sh
-kill $(jps -mlV | grep Node$ | awk '{ print $1 }')
 ```

@@ -1,18 +1,12 @@
 # Create your first MapReduce Job
 
-## Goal
-
-In this tutorial, using your ***simulated*** a multi node Hadoop cluster, you will now start write your first MapReduce job using the Word Count example.
-
-To run the Word Count example, you will use the Word Count java class program it and see how many words it contains and how occurrences.
-
 ## Prerequisites
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
 It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-If you didn't clone the repository yet, you can do so using the following command:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
 cd ~
@@ -133,23 +127,28 @@ mkdir -p $HADOOP_HOME/mr/wordcount/jar
 jar cf $HADOOP_HOME/mr/wordcount/jar/WordCount.jar -C $HADOOP_HOME/mr/wordcount/classes .
 ```
 
-## Start HDFS & Yarn processes
+## Start HDFS processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS processes are started using the following command:
 
 ```sh
-jps | grep -E 'Node|Manager'$
+jps | grep Node$
 ```
 
-If the command returns the following, then you don't need to start the HDFS processes again:
- - 1 Name Node
- - 3 Data Node
- - 1 Resource Manager
- - 3 Node Manager
+If the command returns 1 NameNode and 3 DataNode entries, then you don't need to start the HDFS processes again.
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+If you need to start the HDFS processes, execute the following commands:
 
 ```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
+rm -rf $HADOOP_HOME/tmp
+rm -rf $HADOOP_HOME/data
+rm -rf $HADOOP_HOME/pid
+rm -rf $HADOOP_HOME/logs
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
+
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
@@ -165,6 +164,32 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
+```
+
+You can check that your HDFS processes are started using the following command:
+
+```sh
+jps | grep Node$
+```
+
+You can also get details about HDFS processes using the following URL:
+
+ - http://localhost:9870/
+
+## Start YARN processes
+
+You can check that your YARN processes are started using the following command:
+
+```sh
+jps | grep Manager$
+```
+
+If the command returns 1 ResouceManager and 3 NodeManager entries, then you don't need to start the YARN processes again.
+
+If you need to start the YARN processes, execute the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm
@@ -183,17 +208,15 @@ export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon start nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that the processes are started by using the following command:
 
 ```sh
-jps | grep -E 'Node|Manager'$
+jps | grep Manager$
 ```
 
 You can also get details about HDFS processes using the following URL:
 
- - Name Node : http://localhost:9870/
  - Resource Manager	: http://localhost:8088/
-
 
 ## Create the directory structure and data
 
@@ -215,33 +238,31 @@ hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -rm -r /wordcount/output
 hadoop --config $HADOOP_HOME/etc/hadoop-client jar $HADOOP_HOME/mr/wordcount/jar/WordCount.jar WordCount /wordcount/input /wordcount/output
 ```
 
-As the file is relatively small, only one ma and one reduce task will be used.
-
 The output of your job should look like this:
 
 ```
-2019-12-01 14:12:59,603 INFO client.RMProxy: Connecting to ResourceManager at localhost/127.0.0.1:8032
-2019-12-01 14:13:00,075 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
-2019-12-01 14:13:00,093 INFO mapreduce.JobResourceUploader: Disabling Erasure Coding for path: /tmp/hadoop-yarn/staging/hadoop/.staging/job_1575205900027_0001
-2019-12-01 14:13:00,202 INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
-2019-12-01 14:13:00,341 INFO input.FileInputFormat: Total input files to process : 1
-2019-12-01 14:13:00,379 INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
-2019-12-01 14:13:00,428 INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
-2019-12-01 14:13:00,449 INFO mapreduce.JobSubmitter: number of splits:1
-2019-12-01 14:13:00,587 INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
-2019-12-01 14:13:00,610 INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1575205900027_0001
-2019-12-01 14:13:00,610 INFO mapreduce.JobSubmitter: Executing with tokens: []
-2019-12-01 14:13:00,753 INFO conf.Configuration: resource-types.xml not found
-2019-12-01 14:13:00,754 INFO resource.ResourceUtils: Unable to find 'resource-types.xml'.
-2019-12-01 14:13:00,961 INFO impl.YarnClientImpl: Submitted application application_1575205900027_0001
-2019-12-01 14:13:01,002 INFO mapreduce.Job: The url to track the job: http://localhost:8088/proxy/application_1575205900027_0001/
-2019-12-01 14:13:01,003 INFO mapreduce.Job: Running job: job_1575205900027_0001
-2019-12-01 14:13:08,107 INFO mapreduce.Job: Job job_1575205900027_0001 running in uber mode : false
-2019-12-01 14:13:08,108 INFO mapreduce.Job:  map 0% reduce 0%
-2019-12-01 14:13:14,170 INFO mapreduce.Job:  map 100% reduce 0%
-2019-12-01 14:13:20,197 INFO mapreduce.Job:  map 100% reduce 100%
-2019-12-01 14:13:20,204 INFO mapreduce.Job: Job job_1575205900027_0001 completed successfully
-2019-12-01 14:13:20,276 INFO mapreduce.Job: Counters: 54
+INFO client.RMProxy: Connecting to ResourceManager at localhost/127.0.0.1:8032
+WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+INFO mapreduce.JobResourceUploader: Disabling Erasure Coding for path: /tmp/hadoop-yarn/staging/hadoop/.staging/job_1574232311821_0001
+INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+INFO input.FileInputFormat: Total input files to process : 1
+INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+INFO mapreduce.JobSubmitter: number of splits:1
+INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+INFO mapreduce.JobSubmitter: Submitting tokens for job: job_1574232311821_0001
+INFO mapreduce.JobSubmitter: Executing with tokens: []
+INFO conf.Configuration: resource-types.xml not found
+INFO resource.ResourceUtils: Unable to find 'resource-types.xml'.
+INFO impl.YarnClientImpl: Submitted application application_1574232311821_0001
+INFO mapreduce.Job: The url to track the job: http://localhost:8088/proxy/application_1574232311821_0001/
+INFO mapreduce.Job: Running job: job_1574232311821_0001
+INFO mapreduce.Job: Job job_1574232311821_0001 running in uber mode : false
+INFO mapreduce.Job:  map 0% reduce 0%
+INFO mapreduce.Job:  map 100% reduce 0%
+INFO mapreduce.Job:  map 100% reduce 100%
+INFO mapreduce.Job: Job job_1574232311821_0001 completed successfully
+INFO mapreduce.Job: Counters: 54
         File System Counters
                 FILE: Number of bytes read=2089
                 FILE: Number of bytes written=455219
@@ -258,14 +279,14 @@ The output of your job should look like this:
                 Launched map tasks=1
                 Launched reduce tasks=1
                 Data-local map tasks=1
-                Total time spent by all maps in occupied slots (ms)=3345
-                Total time spent by all reduces in occupied slots (ms)=3441
-                Total time spent by all map tasks (ms)=3345
-                Total time spent by all reduce tasks (ms)=3441
-                Total vcore-milliseconds taken by all map tasks=3345
-                Total vcore-milliseconds taken by all reduce tasks=3441
-                Total megabyte-milliseconds taken by all map tasks=3425280
-                Total megabyte-milliseconds taken by all reduce tasks=3523584
+                Total time spent by all maps in occupied slots (ms)=3996
+                Total time spent by all reduces in occupied slots (ms)=2825
+                Total time spent by all map tasks (ms)=3996
+                Total time spent by all reduce tasks (ms)=2825
+                Total vcore-milliseconds taken by all map tasks=3996
+                Total vcore-milliseconds taken by all reduce tasks=2825
+                Total megabyte-milliseconds taken by all map tasks=4091904
+                Total megabyte-milliseconds taken by all reduce tasks=2892800
         Map-Reduce Framework
                 Map input records=61
                 Map output records=160
@@ -282,15 +303,15 @@ The output of your job should look like this:
                 Shuffled Maps =1
                 Failed Shuffles=0
                 Merged Map outputs=1
-                GC time elapsed (ms)=116
-                CPU time spent (ms)=790
-                Physical memory (bytes) snapshot=605380608
-                Virtual memory (bytes) snapshot=2266464124928
-                Total committed heap usage (bytes)=1221066752
-                Peak Map Physical memory (bytes)=311832576
-                Peak Map Virtual memory (bytes)=1229532835840
-                Peak Reduce Physical memory (bytes)=293548032
-                Peak Reduce Virtual memory (bytes)=1036931289088
+                GC time elapsed (ms)=122
+                CPU time spent (ms)=890
+                Physical memory (bytes) snapshot=605081600
+                Virtual memory (bytes) snapshot=1193300152320
+                Total committed heap usage (bytes)=1211105280
+                Peak Map Physical memory (bytes)=314200064
+                Peak Map Virtual memory (bytes)=775164583936
+                Peak Reduce Physical memory (bytes)=290881536
+                Peak Reduce Virtual memory (bytes)=418135568384
         Shuffle Errors
                 BAD_ID=0
                 CONNECTION=0
@@ -324,17 +345,19 @@ And the applications:
 
  - http://localhost:8088/cluster/apps
 
-## Stop HDFS & Yarn processes
+## Stop HDFS processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS processes are started using the following command:
 
 ```sh
-jps | grep -E 'Node|Manager'$
+jps | grep Node$
 ```
 
-If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
+If the command returns any entries, then you need to stop the HDFS processes using the following commands:
 
 ```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon stop namenode
 
@@ -346,6 +369,26 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon stop datanode
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon stop datanode
+```
+
+You can check that your HDFS processes are stopped using the following command which should return no results:
+
+```sh
+jps | grep Node$
+```
+
+## Stop YARN processes
+
+You can check that your YARN processes are started using the following command:
+
+```sh
+jps | grep Manager$
+```
+
+If the command returns any entries, then you need to stop the YARN processes using the following commands:
+
+```sh
+source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 yarn --config $HADOOP_HOME/etc/hadoop-master-rm --daemon stop resourcemanager
@@ -360,67 +403,8 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon stop nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are stopped using the following command which should return no results:
+You can check that your YARN processes are stopped using the following command which should return no results:
 
 ```sh
-jps | grep -E 'Node|Manager'$
+jps | grep Manager$
 ```
-
-If processes remains in the list then you can execute the following commands to kill them:
-
-```sh
-kill $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
-```
-
-<div style="background-color: #D3D3D3; padding: 20px;  border: 1px solid black;" >
-
-## Quiz
-
-Now that you have run successfully your first MapReduce job, let's try to write a new MR job using the 1500000 Sales Records as an input:
-
-First, create a new MapReduce Java program named `WordCountSalesRecord` and use the previous `WordCount` code as an example.
-
-In the `WordCount` example, the `StringTokenizer` use the default delimiter (space), but the ***1500000 Sales Records*** file uses a comma.
-
-So, you can adjust the `StringTokenizer` instantiation using the following constructor:
-
-```java
-StringTokenizer (String str, String delim)
-```
-
-Then instead of counting all words, you will exclude all numeric and date values like (Order Date, Order ID, Ship Date, Units Sold, Unit Price, Unit Cost, Total Revenue, Total Cost, Total Profit).
-
-To do so, try to cast the value into an `numeric` or a `date`, and if no exception is thrown then count it.
-
-The date format is 'm/d/yyyy' and you can use the ```SimpleDateFormat.parse(String s)``` method.
-
-The ```SimpleDateFormat``` can be instantiated with a constructor taht will take toe date format ("M/d/yyyy").
-
-Recompile your class and generate the JAR file again before executing the MapReduce job.
-
-#### Hint
-
-Once your ```WordCountSalesOrder``` class code is completed, here is the commands to compile and execute it as a MapReduce job:
-
-```
-cd ~/esigelec-ue-lsp-hdp/
-
-hadoop com.sun.tools.javac.Main -d $HADOOP_HOME/mr/wordcount/classes $HADOOP_HOME/mr/wordcount/src/*.java
-jar cf $HADOOP_HOME/mr/wordcount/jar/WordCount.jar -C $HADOOP_HOME/mr/wordcount/classes .
-
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /wordcountsales
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /wordcountsales/input
-
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put /home/hadoop/1500000_Sales_Records.csv /wordcountsales/input
-
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -rm -r /wordcountsales/output
-
-hadoop --config $HADOOP_HOME/etc/hadoop-client jar $HADOOP_HOME/mr/wordcount/jar/WordCount.jar WordCountSalesOrder /wordcountsales/input /wordcountsales/output
-
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -ls /wordcountsales/output
-
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -cat /wordcountsales/output/part-r-00000
-```
-
-How many time the word **`France`** is mentioned?
-</div>

@@ -1,19 +1,5 @@
 # Prepare your system for WSL
 
-## Goal
-
-In order to reduce the resource footprint on your local machines (below 8GB of RAM), we will be using Windows Subsystem For Linux which provides a true Linux kernel since version 2.0 and enable more less anything you could do on a Linux Virtual Machine.
-
-The main steps to install WSL on you Windows 10 machine are:
-
-  - Enable the Windows Subsystems for Linux feature using PowerShell
-  - Install the Ubuntu environment
-  - Create a dedicated Ubuntu user (hadoop)
-  - Add the hadoop to the ***sudoers***
-  - Install & Configure the following packages:
-  - openJDK 8
-  - Install 7zip
-
 ## Install Windows Subsystems for Linux
 
 If you don't have it already installed, you will Windows Subsystems for Linux installed on your Windows computer.
@@ -77,12 +63,12 @@ Now, you will need to update your Ubuntu system with the latest updates using th
 sudo apt-get update
 ```
 
-## Install the openJDK 8
+## Install the openJDK8
 
 Then, you will need to install the openJDK on your Ubuntu system using the following command:
 
 ```sh
-sudo apt-get -y install openjdk-8-jdk
+sudo apt-get install openjdk-8-jdk
 ```
 
 > ### **Note**:
@@ -98,7 +84,7 @@ The JDK will be available at:
 Then, you will need to install 7zip on your Ubuntu system using the following command:
 
 ```sh
-sudo apt-get -y install p7zip-full
+sudo apt-get install p7zip-full
 ```
 
 ## Install SSH
@@ -106,7 +92,7 @@ sudo apt-get -y install p7zip-full
 Now, you need to install ssh on your Ubuntu system using the following command:
 
 ```sh
-sudo apt-get -y install ssh
+sudo apt-get install ssh
 ```
 
 After the ssh install completes, you will need to stop the service:

@@ -1,31 +1,5 @@
 # 01 - Setup a single HDFS data node cluster
 
-## Goal
-
-In this tutorial, you will use the "plain" Hadoop 3.2.1 distribution and start it as a single node cluster.
-
-The goal here is to identify the set of environment variables required to properly start your Hadoop instance:
- - JAVA_HOME
- - HADOOP_HOME
- - HADOOP_CONF_DIR
- - HADOOP_LOG_DIR
- - HADOOP_OPTS
- - PATH
-
-If these environment variable are not configured, then default values will be applied (which works too), but the location of the generated files will be diverse on your system.
-
-A series of files will also be configured to specify ports and file locations as well:
- - core-site: defines the Name Node port and the tmp directory
-
-Before starting your single node cluster, you'll need to format the Name Node.
-
-**<p style="text-align: center;"> <span style="color: red">In order to keep your environment similar to the one used to build the series of tutorials, you will need to do everything in the same directory as described in the tutorials (esigelec-ue-lsp-hdp).
-PLEASE BE DON'T BE CREATIVE WITH FOLDER NAMES!!!!</span></p>**
-
-> #### **Note:**
->Keep in mind that if you format your Name Node with existing data in your Data Node, you will receive an error because the cluster ids won't match.
->When formatting, you Name Node you can specify the cluster id.
-
 ## Prerequisites
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
@@ -65,8 +39,6 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-export HADOOP_HOME=$(echo ~)/esigelec-ue-lsp-hdp/hadoop-3.2.1
-
 rm $ENV_FILE
 
 echo -e "umask 022" > $ENV_FILE
@@ -74,6 +46,7 @@ echo -e "umask 022" > $ENV_FILE
 echo -e "export LSP_HOME=$(echo ~)/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
 echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $ENV_FILE
+echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1" >> $ENV_FILE
 
 echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin" >> $ENV_FILE
@@ -82,19 +55,13 @@ echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin" >> $ENV_FILE
 echo -e "export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop" >> $ENV_FILE
 echo -e "export HADOOP_LOG_DIR=\$HADOOP_HOME/logs" >> $ENV_FILE
 
+echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\"" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+
 echo -e "export PATH=\$PATH:\$HADOOP_BIN_PATH" >> $ENV_FILE
 echo -e "export PATH=\$PATH:\$HADOOP_SBIN_PATH" >> $ENV_FILE
 echo -e "export PATH=\$PATH:\$JAVA_HOME/bin" >> $ENV_FILE
 
-echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""  >> $ENV_FILE
-
-export LINE="export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""
-grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/hadoop-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
-
-export LINE="export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
-grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/hadoop-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+echo -e "source $ENV_FILE" >> ~/.bashrc
 
 source $ENV_FILE
 ```

@@ -1,48 +1,12 @@
 # Setup additional HDFS data node in your cluster
 
-## Goal
-
-In this tutorial, you will ***simulate*** a multi node Hadoop cluster.
-
-To do so, you will create a series of subfolders that will be used by each ***fake*** node processes as their ***etc/hadoop*** configuration directory.
-
-In the end, you folder structure will look like this:
-
-```
-$HADOOP_HOME
-|-- etc
-    |-- hadoop-master-nn
-    |   |-- core-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-slave-1-dn
-    |   |-- hdfs-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-slave-2-dn
-    |   |-- hdfs-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-slave-3-dn
-    |   |-- hdfs-site.xml
-    |   |-- log4j.properties    
-    |-- hadoop-client
-        |-- core-site.xml
-        |-- hdfs-site.xml
-```
-
-As you can notice, even the client process will hold it's own configuration folder to ***fake*** a remote connection.
-
-Once the directory structure is created, you will format the ***master Name Node*** and then start it in a separate shell window along with the 3 ***slave Data Node*** processes.
-
-The reason, you will use distinct shell windows is to allow you to monitor the logs.
-
-In the *"real life"*, you would browse the logs instead using a *mode* command.
-
 ## Prerequisites
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
 It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-If you didn't clone the repository yet, you can do so using the following command:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
 cd ~
@@ -273,8 +237,7 @@ source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 Then, execute the following command:
 
 ```sh
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
+rm -r $HADOOP_HOME/tmp/*
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
 ```
 

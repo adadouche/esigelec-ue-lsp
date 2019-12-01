@@ -1,27 +1,17 @@
 # Upload your first file in HDFS
 
-## Goal
-
-In this tutorial, you will your single node cluster (configured in the last step) to upload your first files using the ***dfs*** commands.
-
-You can find the full list of commands in the documentation :
-
-- https://hadoop.apache.org/docs/r3.2.1/hadoop-project-dist/hadoop-common/FileSystemShell.html
-
 ## Prerequisites
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
 It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-If you didn't clone the repository yet, you can do so using the following command:
+Open an **Ubuntu** terminal and execute:
 
 ```sh
 cd ~
 git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
-
-Open an **Ubuntu** terminal and execute:
 
 Now checkout the current step branch:
 
@@ -107,7 +97,7 @@ And access the file system:
 You can also explore the folders stored in **$HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/** using `ls`:
 
 ```sh
-ls -la $HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/
+ls $HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/
 ```
 
 You can also use the `more` or `cat` command to view the file content.
