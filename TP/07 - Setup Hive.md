@@ -268,16 +268,16 @@ jps -mlV | grep HiveServer2
 You will have to wait for 4 **Hive Session ID** entries to be displayed in order to consider that Hive is properly started:
 
 ```
+2019-12-01 16:14:08: Starting HiveServer2
 SLF4J: Class path contains multiple SLF4J bindings.
 SLF4J: Found binding in [jar:file:/home/hadoop/esigelec-ue-lsp-hdp/hive-3.1.2/lib/log4j-slf4j-impl-2.10.0.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: Found binding in [jar:file:/home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/share/hadoop/common/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
 SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
-Metastore connection URL:        jdbc:derby:;databaseName=/home/hadoop/esigelec-ue-lsp-hdp/hive-3.1.2/metastore_db;create=true
-Metastore Connection Driver :    org.apache.derby.jdbc.EmbeddedDriver
-Metastore connection User:       APP
-Hive distribution version:       3.1.0
-Metastore schema version:        3.1.0
+Hive Session ID = a0c91e92-eb04-4016-b182-5f89c11e2e50
+Hive Session ID = 4ed5914a-1de5-4abf-91ce-0387504a3417
+Hive Session ID = 48982e80-39a6-440b-8353-e7f2e1115d55
+Hive Session ID = d6123930-a4b8-4986-a627-a720eafa0e93
 ````
 
 ## Stop Hive processes

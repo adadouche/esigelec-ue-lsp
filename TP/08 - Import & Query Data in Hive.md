@@ -135,8 +135,8 @@ beeline -u jdbc:hive2://localhost:10000/default --hivevar lsp.home=$(echo ~)/esi
 
 > If you receive the following error while connecting with beeline, you may need to wait a little more for the Hive process to get started:
 > ```
-Could not open connection to the HS2 server.
-```
+> Could not open connection to the HS2 server.
+> ```
 
 **To quit beeline CLI, you will need to type ```! q```.**
 
