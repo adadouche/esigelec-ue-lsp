@@ -137,7 +137,7 @@ Before starting using the HDFS, you will need to format it.
 In your **Ubuntu** terminal, execute the following command to format the Name Node:
 
 ```sh
-hdfs namenode -format -force
+hdfs namenode -format -force -clusterID local
 ```
 
 This will format the name node `dfs`.
