@@ -66,17 +66,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-04
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+./.setup.sh
 ```
 
 ## Extend the YARN environment variables
@@ -116,7 +106,7 @@ Replace the file content with:
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>${yarn.home}/tmp/hadoop-master-rm</value>
+        <value>${hadoop.home}/tmp/hadoop-master-rm</value>
     </property>
 </configuration>
 ```
@@ -150,7 +140,7 @@ Replace the file content with:
     <property>
         <name>yarn.resourcemanager.hostname</name>
         <value>localhost</value>
-    </property>    
+    </property>
 </configuration>
 ```
 
@@ -215,7 +205,7 @@ Replace the file content with:
         <name>yarn.nodemanager.localizer.address</name>
         <value>${yarn.nodemanager.hostname}:8140</value>
     </property>
-	<property>
+	  <property>
         <name>yarn.nodemanager.webapp.address</name>
         <value>${yarn.nodemanager.hostname}:8142</value>
     </property>
@@ -267,6 +257,10 @@ Replace the file content with:
     <property>
         <name>mapreduce.framework.name</name>
         <value>yarn</value>
+    </property>
+    <property>
+        <name>yarn.app.mapreduce.am.staging-dir</name>
+        <value>${hadoop.home}/tmp/hadoop-slave-1-nm/yarn/staging</value>
     </property>
     <property>
         <name>mapreduce.application.classpath</name>
@@ -488,6 +482,14 @@ You can check the status of your cluster using the following link:
  - Resource Manager	: http://localhost:8088/cluster/nodes
 
 You can now close each of the Ubuntu terminal for the Master Resource Manager & Slaves Node Manager.
+
+> ### **Warning:**
+>
+> When checking the Resource Manager, you may notice that your Node Manger are marked as **Unhealthy Nodes**.
+> There are multiple reason this can happen, and the most common one is disk space.
+> You can change the default value for the following yarn-site properties to relax the rule:
+>  - yarn.nodemanager.disk-health-checker.min-healthy-disks
+>  - yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage
 
 ## Stop HDFS & Yarn processes
 

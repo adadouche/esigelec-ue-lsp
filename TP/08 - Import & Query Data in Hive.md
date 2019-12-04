@@ -29,29 +29,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-07
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
-
-hadoop fs -mkdir -p /tmp
-hadoop fs -mkdir -p /user/hive/warehouse
-hadoop fs -chmod g+w /tmp
-hadoop fs -chmod g+w /user/hive/warehouse
-
-schematool -dbType derby -initSchema
+./.setup.sh
 ```
 
 ## Start HDFS & Yarn processes
@@ -298,18 +276,16 @@ Download and unzip a local copy of the following link:
 You can use the following commands to download:
 
 ```sh
-cd ~
-wget http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
+cd ~/esigelec-ue-lsp-hdp
+7z e 1500000_Sales_Records.7z
 
-7z e '1500000 Sales Records.7z'
-
-mv 1500000\ Sales\ Records.csv $HADOOP_HOME/1500000_Sales_Records.csv
+mv 1500000\ Sales\ Records.csv 1500000_Sales_Records.csv
 ```
 
 And finally, let's import it with inline configuration properties:
 
 ```sh
-hdfs dfs -Ddfs.replication=2 -Ddfs.block.size=10m -put ~/1500000_Sales_Records.csv  /1500000_Sales_Records.csv
+hdfs dfs -Ddfs.replication=2 -Ddfs.block.size=10m -put $(echo ~)/esigelec-ue-lsp-hdp/1500000_Sales_Records.csv  /1500000_Sales_Records.csv
 ```
 
 Open a new Beeline session using the following command:
@@ -625,7 +601,7 @@ jps | grep -E 'Node|Manager'$
 If processes remains in the list then you can execute the following commands to kill them:
 
 ```sh
-kill $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
+kill -9 $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
 ```
 
 
@@ -645,17 +621,38 @@ For more examples, you can check the following links:
 
 Now that you have run successfully your first Hive SQL queries on the Sales Record data, let's try to write a Hive SQL query that will:
 
-- query 1 :
-  - count the number of rows where the country is equal to `France`
-- query 2 :
-  - sum the total profit for item type "Baby Food" per region per country
-- query 3 :
-  - sum the total profit for item type "Baby Food" per region per country
-  - sum the total profit for item type "Beverages" per region per country
-- query 4 :
-   - sum of total profit for item type "Baby Food" per region per country
-   - sum of total profit for item type "Baby Food" per region
-   - count of country per region
+- Query 1 : count the number of rows where the country is equal to `France`.
+
+  The result should have 1 column which count the number of entries where the country is equal to `France`.
+
+- Query 2 : sum the total profit for item type "Baby Food" per region per country
+
+  The result should have 3 columns which returns:
+
+   - region
+   - country
+   - the total profit sum only for item type "Baby Food" for the region &  country of the row
+
+- Query 3 : sum the total profit for item type "Baby Food" & "Beverages" per region per country
+
+  The result should have 4 columns which returns:
+
+   - region
+   - country
+   - the total profit sum only for item type "Baby Food" for the region & country of the row
+   - the total profit sum only for item type "Beverages" for the region & country of the row
+
+  The goal is to compare if, in certain country, we are making more profit on Beverages than for Baby Food
+
+- Query 4 : sum the total profit for item type "Baby Food" per region per country, sum the total profit for item type "Baby Food" per region & the count of countries in the region
+
+   The result should have 5 columns which returns:
+
+    - region
+    - country
+    - the total profit sum only for item type "Baby Food" for the region & country of the row
+    - the total profit sum only for item type "Baby Food" for the region of the row
+    - the count of countries for the region of the row
 
 ### Hint
 

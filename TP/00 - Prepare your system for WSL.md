@@ -101,6 +101,14 @@ Then, you will need to install 7zip on your Ubuntu system using the following co
 sudo apt-get -y install p7zip-full
 ```
 
+## Install Python
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+sudo apt-get -y install python
+```
+
 ## Install SSH
 
 Now, you need to install ssh on your Ubuntu system using the following command:

@@ -31,18 +31,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-01
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
-
+./.setup.sh
 ```
 
 ## Start the HDFS processes
@@ -99,11 +88,11 @@ hdfs dfs -cat /config/yarn-site.xml
 
 You can also get details about HDFS and the Name Node using the following URL:
 
- - http://localhost:9070/
+ - http://localhost:9870/
 
 And access the file system:
 
- - http://localhost:9070/explorer.html#/
+ - http://localhost:9870/explorer.html#/
 
 You can also explore the folders stored in **$HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/** using `ls`:
 
@@ -112,3 +101,18 @@ ls -la $HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/s
 ```
 
 You can also use the `more` or `cat` command to view the file content.
+
+
+## Stop HDFS daemons
+
+In a command prompt, execute the following commands:
+
+```sh
+stop-dfs.sh
+```
+
+If processes remains in the list then you can execute the following commands to kill them:
+
+```sh
+kill -9 $(jps -mlV | awk '{ print $1 }')
+```

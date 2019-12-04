@@ -33,18 +33,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-08
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /wordcount/input
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put $HADOOP_HOME/mr/wordcount/src/WordCount.java /wordcount/input
+./.setup.sh
 ```
 
 ## Download the Spark 3.0.0 preview distribution
@@ -60,14 +49,6 @@ In your **Ubuntu** terminal, execute:
 ```sh
 cd ~
 wget http://apache.mirrors.benatherton.com/spark/spark-3.0.0-preview/spark-3.0.0-preview-bin-hadoop3.2.tgz
-```
-
-## Install Python
-
-In your **Ubuntu** terminal, execute:
-
-```sh
-sudo apt-get -y install python
 ```
 
 ## Extract the Spark 3.0.0 preview distribution into the Git Folder
@@ -93,7 +74,7 @@ rm -f $ENV_FILE
 
 echo -e "umask 022" > $ENV_FILE
 
-echo -e "export LSP_HOME=$(echo ~)/esigelec-ue-lsp-hdp" >> $ENV_FILE
+echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
 echo -e "export SPARK_HOME=\$LSP_HOME/spark-3.0.0" >> $ENV_FILE
 echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1" >> $ENV_FILE
@@ -186,6 +167,19 @@ pyspark
 Then you can paste the following code:
 
 ```python
+input_file = sc.textFile("file:///home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/mr/wordcount/src/WordCount.java")
+counts = input_file.flatMap(lambda line: line.split(" ")) \
+             .map(lambda word: (word, 1)) \
+             .reduceByKey(lambda a, b: a + b) \
+             .toDF()
+counts.show()
+```
+
+It assumes that you have uploaded the WordCount.java /home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/mr/wordcount/src/WordCount.java.
+
+Now, paste the following code:
+
+```python
 input_file = sc.textFile("/wordcount/input/WordCount.java")
 counts = input_file.flatMap(lambda line: line.split(" ")) \
              .map(lambda word: (word, 1)) \
@@ -194,7 +188,7 @@ counts = input_file.flatMap(lambda line: line.split(" ")) \
 counts.show()
 ```
 
-It assumes that you have uploaded the WordCount.java in HDFS.
+It assumes that you have started HDFS and uploaded the WordCount.java in /wordcount/input.
 
 ## Stop Spark Master & Slave processes
 

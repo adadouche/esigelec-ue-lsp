@@ -37,6 +37,11 @@ Open an **Ubuntu** terminal and execute:
 ```sh
 cd ~
 git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
+
+git reset --hard origin/new-step-00
+git clean -dfq
+
+./.setup.sh
 ```
 
 ## Download the Hadoop 3.2.1 distribution
@@ -71,7 +76,7 @@ rm -f $ENV_FILE
 
 echo -e "umask 022" > $ENV_FILE
 
-echo -e "export LSP_HOME=$(echo ~)/esigelec-ue-lsp-hdp" >> $ENV_FILE
+echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
 echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $ENV_FILE
 echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1" >> $ENV_FILE
@@ -137,6 +142,8 @@ Before starting using the HDFS, you will need to format it.
 In your **Ubuntu** terminal, execute the following command to format the Name Node:
 
 ```sh
+rm -rf $HADOOP_HOME/tmp/* $HADOOP_HOME/data/* $HADOOP_HOME/logs/* $HADOOP_HOME/pid/*
+
 hdfs namenode -format -force -clusterID local
 ```
 
@@ -187,4 +194,10 @@ In a command prompt, execute the following commands:
 
 ```sh
 stop-dfs.sh
- ```
+```
+
+If processes remains in the list then you can execute the following commands to kill them:
+
+```sh
+kill -9 $(jps -mlV | awk '{ print $1 }')
+```

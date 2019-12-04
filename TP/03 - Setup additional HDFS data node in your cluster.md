@@ -57,15 +57,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-02
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
+./.setup.sh
 ```
 
 ## Stop your current HDFS processes
@@ -79,6 +71,12 @@ stop-dfs.sh
 ```
 
 You can check that the processes are stopped using the **`jps`** command.
+
+If processes remains in the list then you can execute the following commands to kill them:
+
+```sh
+kill -9 $(jps -mlV | awk '{ print $1 }')
+```
 
 ## Create the Master Name Node config file - core-site
 
@@ -269,11 +267,7 @@ Before starting using your master/slave HDFS configuration, you will need to for
 In your **Ubuntu** terminal, execute the following commands :
 
 ```sh
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
+rm -rf $HADOOP_HOME/tmp/* $HADOOP_HOME/data/* $HADOOP_HOME/logs/* $HADOOP_HOME/pid/*
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
 ```
 
@@ -334,4 +328,12 @@ With the Data Nodes:
 
  - http://localhost:9870/dfshealth.html#tab-datanode
 
+## Stop HDFS daemons
+
 You can now close the Ubuntu terminals for the Master Name Node & the Slave Data Nodes.
+
+If processes remains in the list then you can execute the following commands to kill them:
+
+```sh
+kill -9 $(jps -mlV | awk '{ print $1 }')
+```

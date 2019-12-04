@@ -33,17 +33,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-06
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+./.setup.sh
 ```
 
 ## Download the Hive 3.1.2 distribution
@@ -78,7 +68,7 @@ rm -f $ENV_FILE
 
 echo -e "umask 022" > $ENV_FILE
 
-echo -e "export LSP_HOME=$(echo ~)/esigelec-ue-lsp-hdp" >> $ENV_FILE
+echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
 echo -e "export HIVE_HOME=\$LSP_HOME/hive-3.1.2" >> $ENV_FILE
 echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf" >> $ENV_FILE
@@ -188,10 +178,10 @@ You can also get details about HDFS processes using the following URL:
 In your Ubuntu terminal, execute the following commands:
 
 ```sh
-hadoop fs -mkdir -p /tmp
-hadoop fs -mkdir -p /user/hive/warehouse
-hadoop fs -chmod g+w /tmp
-hadoop fs -chmod g+w /user/hive/warehouse
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /tmp
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /user/hive/warehouse
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -chmod g+w /tmp
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -chmod g+w /user/hive/warehouse
 ```
 
 ## Configure Hive - hive-site
@@ -359,5 +349,5 @@ jps | grep -E 'Node|Manager'$
 If processes remains in the list then you can execute the following commands to kill them:
 
 ```sh
-kill $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
+kill -9 $(jps -mlV | awk '{ print $1 }')
 ```

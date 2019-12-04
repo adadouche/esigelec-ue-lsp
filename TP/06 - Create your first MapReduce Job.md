@@ -27,17 +27,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-05
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+./.setup.sh
 ```
 
 ## The WordCount example
@@ -375,7 +365,7 @@ jps | grep -E 'Node|Manager'$
 If processes remains in the list then you can execute the following commands to kill them:
 
 ```sh
-kill $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
+kill -9 $(jps | grep -E 'Node|Manager'$ | awk '{ print $1 }')
 ```
 
 <div style="background-color: #D3D3D3; padding: 20px;  border: 1px solid black;" >

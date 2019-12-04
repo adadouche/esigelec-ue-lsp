@@ -31,10 +31,7 @@ cd ~/esigelec-ue-lsp-hdp
 git reset --hard origin/new-step-03
 git clean -dfq
 
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
-source $ENV_FILE
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+./.setup.sh
 ```
 
 ## Start HDFS processes
@@ -52,13 +49,11 @@ If the command returns the following, then you don't need to start the HDFS proc
 If you need to start the HDFS & Yarn processes, execute the following commands:
 
 ```sh
-rm -rf $HADOOP_HOME/tmp/*
-rm -rf $HADOOP_HOME/data/*
-rm -rf $HADOOP_HOME/logs/*
-rm -rf $HADOOP_HOME/pid/*
-
+# First we reformat the Name Node to avoid inconsistency issues
+rm -rf $HADOOP_HOME/tmp/* $HADOOP_HOME/data/* $HADOOP_HOME/logs/* $HADOOP_HOME/pid/*
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
 
+# Then we start the processes as daemons
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
@@ -95,10 +90,14 @@ Download and unzip a local copy of the following link:
 You can use the following commands to download:
 
 ```sh
-cd ~
+cd $LSP_HOME
+rm  $LSP_HOME/'1500000_Sales_Records.7z'
+
 wget http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
 
-7z e '1500000 Sales Records.7z'
+mv 1500000\ Sales\ Records.7z 1500000_Sales_Records.7z
+
+7z e 1500000_Sales_Records.7z
 
 mv 1500000\ Sales\ Records.csv 1500000_Sales_Records.csv
 ```
@@ -106,7 +105,7 @@ mv 1500000\ Sales\ Records.csv 1500000_Sales_Records.csv
 Now, let's import it:
 
 ```sh
-hdfs dfs -put ~/1500000_Sales_Records.csv /1500000_Sales_Records.default.csv
+hdfs dfs -put $LSP_HOME/1500000_Sales_Records.csv /1500000_Sales_Records.default.csv
 ```
 
 Here you can notice that the full path is required and no configuration file is provided.
@@ -114,13 +113,13 @@ Here you can notice that the full path is required and no configuration file is 
 Now, let's import it with a configuration file:
 
 ```sh
-hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put ~/1500000_Sales_Records.csv /1500000_Sales_Records.client.csv
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put $LSP_HOME/1500000_Sales_Records.csv /1500000_Sales_Records.client.csv
 ```
 
 And finally, let's import it with inline configuration properties:
 
 ```sh
-hdfs dfs -Ddfs.replication=3 -Ddfs.block.size=10m -put ~/1500000_Sales_Records.csv  /1500000_Sales_Records.param.csv
+hdfs dfs -Ddfs.replication=3 -Ddfs.block.size=10m -put $LSP_HOME/1500000_Sales_Records.csv  /1500000_Sales_Records.param.csv
 ```
 
 Now, let's check the files are here:
@@ -137,7 +136,7 @@ hdfs fsck / -files -blocks
 
 You can also get these details using the following URL:
 
- - http://localhost:9070/explorer.html#/
+ - http://localhost:9870/explorer.html#/
 
 You can notice that the files have different settings for the replica and the block size.
 
@@ -201,7 +200,7 @@ Now, start the 3rd slave data node using the following command:
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
 ```
 
-Will the 3rd replica be created? check the Name Node Explorer: http://localhost:9070/explorer.html#/
+Will the 3rd replica be created? check the Name Node Explorer: http://localhost:9870/explorer.html#/
 
 #### Block size
 
@@ -222,5 +221,13 @@ You can check the 1500000_Sales_Records.param.csv uploaded file using the follow
 ```sh
 hdfs fsck /1500000_Sales_Records.param.csv -files -blocks
 ```
+
+#### Hint
+
+You will need to wait 5 minutes before the Name Node realize that the Data Node is down.
+
+So for the time being, if you try to get the file, you will potentially receive a list of Data Nodes that are down for your file.
+
+You can adjust this setting in your hdfs-site.xml (dfs.namenode.checkpoint.period and others) or be patient.
 
 </div
