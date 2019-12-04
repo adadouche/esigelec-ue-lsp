@@ -56,6 +56,11 @@ cd ~/esigelec-ue-lsp-hdp
 
 git reset --hard origin/new-step-02
 git clean -dfq
+
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+source $ENV_FILE
+
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 ```
 
 ## Stop your current HDFS processes
@@ -264,7 +269,7 @@ rm -rf $HADOOP_HOME/data/*
 rm -rf $HADOOP_HOME/logs/*
 rm -rf $HADOOP_HOME/pid/*
 
-hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
 ```
 
 ## Start HDFS Name Node
