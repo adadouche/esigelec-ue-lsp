@@ -32,6 +32,11 @@ cd ~/esigelec-ue-lsp-hdp
 
 git reset --hard origin/new-step-06
 git clean -dfq
+
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+source $ENV_FILE
+
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 ```
 
 ## Download the Hive 3.1.2 distribution

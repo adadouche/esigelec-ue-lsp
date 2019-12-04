@@ -32,6 +32,16 @@ cd ~/esigelec-ue-lsp-hdp
 
 git reset --hard origin/new-step-08
 git clean -dfq
+
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+source $ENV_FILE
+
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
+source $ENV_FILE
+
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 ```
 
 ## Download the Spark 3.0.0 preview distribution

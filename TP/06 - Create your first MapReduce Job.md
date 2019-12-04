@@ -26,14 +26,11 @@ cd ~/esigelec-ue-lsp-hdp
 
 git reset --hard origin/new-step-05
 git clean -dfq
-```
 
-## Set your Hadoop environment variables
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+source $ENV_FILE
 
-In your **Ubuntu** terminal, execute:
-
-```sh
-source ~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 ```
 
 ## The WordCount example
