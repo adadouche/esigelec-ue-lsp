@@ -61,6 +61,11 @@ export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 source $ENV_FILE
 
 grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+rm -rf $HADOOP_HOME/tmp/*
+rm -rf $HADOOP_HOME/data/*
+rm -rf $HADOOP_HOME/logs/*
+rm -rf $HADOOP_HOME/pid/*
 ```
 
 ## Stop your current HDFS processes
