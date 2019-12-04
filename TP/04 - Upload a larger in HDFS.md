@@ -137,7 +137,7 @@ hdfs fsck / -files -blocks
 
 You can also get these details using the following URL:
 
- - http://localhost:50070/explorer.html#/
+ - http://localhost:9070/explorer.html#/
 
 You can notice that the files have different settings for the replica and the block size.
 
@@ -201,7 +201,7 @@ Now, start the 3rd slave data node using the following command:
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
 ```
 
-Will the 3rd replica be created? check the Name Node Explorer: http://localhost:50070/explorer.html#/
+Will the 3rd replica be created? check the Name Node Explorer: http://localhost:9070/explorer.html#/
 
 #### Block size
 

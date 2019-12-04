@@ -70,6 +70,13 @@ export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 source $ENV_FILE
 
 grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+rm -rf $HADOOP_HOME/tmp/*
+rm -rf $HADOOP_HOME/data/*
+rm -rf $HADOOP_HOME/logs/*
+rm -rf $HADOOP_HOME/pid/*
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
 ```
 
 ## Extend the YARN environment variables
@@ -77,10 +84,14 @@ grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 In your **Ubuntu** terminal, execute the following commands:
 
 ```sh
-echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
+export LINE="export \"YARN_OPTS=\$YARN_OPTS -Dhadoop.home='\$HADOOP_HOME'\""
+grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/yarn-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
 
-echo -e "export /"YARN_OPTS=/$YARN_OPTS -Dyarn.home='/$HADOOP_HOME'/"" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
-echo -e "export /"YARN_OPTS=/$YARN_OPTS -Dhadoop.home='/$HADOOP_HOME'/"" >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
+export LINE="export \"YARN_OPTS=\$YARN_OPTS -Dyarn.home='\$HADOOP_HOME'\""
+grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/yarn-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
+
+export LINE="export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
+grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/yarn-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/yarn-env.sh
 ```
 
 ## Create the Master Resource Manager config file - core-site
@@ -134,7 +145,7 @@ Replace the file content with:
     </property>
     <property>
         <name>yarn.node-attribute.fs-store.root-dir</name>
-        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+        <value>${yarn.home}/tmp/hadoop-master-rm/node-attribute</value>
     </property>
     <property>
         <name>yarn.resourcemanager.hostname</name>

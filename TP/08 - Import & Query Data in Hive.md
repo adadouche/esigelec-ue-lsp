@@ -33,6 +33,25 @@ export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
 source $ENV_FILE
 
 grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
+source $ENV_FILE
+
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+rm -rf $HADOOP_HOME/tmp/*
+rm -rf $HADOOP_HOME/data/*
+rm -rf $HADOOP_HOME/logs/*
+rm -rf $HADOOP_HOME/pid/*
+
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+
+hadoop fs -mkdir -p /tmp
+hadoop fs -mkdir -p /user/hive/warehouse
+hadoop fs -chmod g+w /tmp
+hadoop fs -chmod g+w /user/hive/warehouse
+
+schematool -dbType derby -initSchema
 ```
 
 ## Start HDFS & Yarn processes
@@ -284,7 +303,7 @@ wget http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Record
 
 7z e '1500000 Sales Records.7z'
 
-mv 1500000\ Sales\ Records.csv $HIVE_HOME/1500000_Sales_Records.csv
+mv 1500000\ Sales\ Records.csv $HADOOP_HOME/1500000_Sales_Records.csv
 ```
 
 And finally, let's import it with inline configuration properties:

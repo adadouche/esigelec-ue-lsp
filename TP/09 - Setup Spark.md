@@ -42,6 +42,9 @@ export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
 source $ENV_FILE
 
 grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /wordcount/input
+hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put $HADOOP_HOME/mr/wordcount/src/WordCount.java /wordcount/input
 ```
 
 ## Download the Spark 3.0.0 preview distribution
@@ -57,6 +60,14 @@ In your **Ubuntu** terminal, execute:
 ```sh
 cd ~
 wget http://apache.mirrors.benatherton.com/spark/spark-3.0.0-preview/spark-3.0.0-preview-bin-hadoop3.2.tgz
+```
+
+## Install Python
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+sudo apt-get -y install python
 ```
 
 ## Extract the Spark 3.0.0 preview distribution into the Git Folder
@@ -167,6 +178,12 @@ Type --help for more information.
 ```
 
 Now, open a new PySpark session and execute the following code:
+
+```sh
+pyspark
+```
+
+Then you can paste the following code:
 
 ```python
 input_file = sc.textFile("/wordcount/input/WordCount.java")

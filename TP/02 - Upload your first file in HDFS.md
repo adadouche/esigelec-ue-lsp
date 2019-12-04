@@ -99,11 +99,11 @@ hdfs dfs -cat /config/yarn-site.xml
 
 You can also get details about HDFS and the Name Node using the following URL:
 
- - http://localhost:50070/
+ - http://localhost:9070/
 
 And access the file system:
 
- - http://localhost:50070/explorer.html#/
+ - http://localhost:9070/explorer.html#/
 
 You can also explore the folders stored in **$HADOOP_HOME/tmp/hadoop/dfs/data/current/BP-*/current/finalized/subdir0/subdir0/** using `ls`:
 
