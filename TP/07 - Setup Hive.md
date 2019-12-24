@@ -132,7 +132,7 @@ For this tutorial, you will use the following HDFS & Yarn processes :
  - 1 Resource Manager
  - 2 Node Manager
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+To start the HDFS & Yarn processes, execute the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
