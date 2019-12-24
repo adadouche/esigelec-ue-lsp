@@ -110,7 +110,7 @@ mv $HIVE_HOME/lib/guava-19.0.jar $HIVE_HOME/lib/guava-19.0.jar.old
 cp $HADOOP_HOME/share/hadoop/common/lib/guava-27.0-jre.jar $HIVE_HOME/lib/guava-27.0-jre.jar
 ```
 
-## Start HDFS & Yarn processes
+## Stop HDFS & Yarn processes
 
 You can check that your HDFS & Yarn processes are started using the following command:
 
@@ -118,11 +118,19 @@ You can check that your HDFS & Yarn processes are started using the following co
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns the following, then you don't need to start the HDFS & Yarn processes again:
+If processes remains in the list then you can execute the following commands to kill them:
+
+```sh
+kill -9 $(jps -mlV | awk '{ print $1 }')
+```
+
+## Start HDFS & Yarn processes
+
+For this tutorial, you will use the following HDFS & Yarn processes :
  - 1 Name Node
- - 3 Data Node
+ - 2 Data Node
  - 1 Resource Manager
- - 3 Node Manager
+ - 2 Node Manager
 
 If you need to start the HDFS & Yarn processes, execute the following commands:
 
@@ -139,10 +147,6 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
-export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
-hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
-
 sleep 30
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
@@ -157,9 +161,6 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm --daemon start nodemanager
 
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
-export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
-yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon start nodemanager
 ```
 
 You can check that your HDFS & Yarn processes are started using the following command:
@@ -171,7 +172,7 @@ jps | grep -E 'Node|Manager'$
 You can also get details about HDFS processes using the following URL:
 
  - Name Node : http://localhost:9870/
- - Resource Manager	: http://localhost:8088/
+ - Resource Manager : http://localhost:8088/
 
 ## Create Hive Meta store and temporary directory
 
@@ -324,9 +325,6 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-1-dn --daemon stop datanode
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon stop datanode
 
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
-hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon stop datanode
-
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 yarn --config $HADOOP_HOME/etc/hadoop-master-rm --daemon stop resourcemanager
 
@@ -335,9 +333,6 @@ yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm --daemon stop nodemanager
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm --daemon stop nodemanager
-
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
-yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon stop nodemanager
 ```
 
 You can check that your HDFS & Yarn processes are stopped using the following command which should return no results:
