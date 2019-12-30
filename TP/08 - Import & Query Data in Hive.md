@@ -32,7 +32,7 @@ git clean -dfq
 ./.setup.sh
 ```
 
-## Start HDFS & YARN processes
+## Stop HDFS & Yarn processes
 
 You can check that your HDFS & YARN processes are started using the following command:
 
@@ -40,13 +40,21 @@ You can check that your HDFS & YARN processes are started using the following co
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns the following, then you don't need to start the HDFS & YARN processes again:
- - 1 Name Node
- - 3 Data Node
- - 1 Resource Manager
- - 3 Node Manager
+If processes remains in the list then you can execute the following commands to kill them:
 
-If you need to start the HDFS & YARN processes, execute the following commands:
+```sh
+kill -9 $(jps -mlV | awk '{ print $1 }')
+```
+
+## Start HDFS & Yarn processes
+
+For this tutorial, you will use the following HDFS & Yarn processes :
+ - 1 Name Node
+ - 2 Data Node
+ - 1 Resource Manager
+ - 2 Node Manager
+
+To start the HDFS & Yarn processes, execute the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
@@ -61,10 +69,6 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
-export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
-hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
-
 sleep 30
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
@@ -78,10 +82,6 @@ yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm --daemon start nodemanager
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm --daemon start nodemanager
-
-export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
-export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
-yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon start nodemanager
 ```
 
 You can check that your HDFS & YARN processes are started using the following command:
