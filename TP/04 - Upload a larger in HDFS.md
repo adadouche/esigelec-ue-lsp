@@ -46,7 +46,7 @@ If the command returns the following, then you don't need to start the HDFS proc
  - 1 Name Node
  - 3 Data Node
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+If you need to start the HDFS & YARN processes, execute the following commands:
 
 ```sh
 # First we reformat the Name Node to avoid inconsistency issues
@@ -148,7 +148,7 @@ You can check that your HDFS processes are started using the following command:
 jps | grep Node$
 ```
 
-If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
+If the command returns any entries, then you need to stop the HDFS & YARN processes using the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn

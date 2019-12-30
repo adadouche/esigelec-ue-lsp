@@ -110,21 +110,21 @@ mv $HIVE_HOME/lib/guava-19.0.jar $HIVE_HOME/lib/guava-19.0.jar.old
 cp $HADOOP_HOME/share/hadoop/common/lib/guava-27.0-jre.jar $HIVE_HOME/lib/guava-27.0-jre.jar
 ```
 
-## Start HDFS & Yarn processes
+## Start HDFS & YARN processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns the following, then you don't need to start the HDFS & Yarn processes again:
+If the command returns the following, then you don't need to start the HDFS & YARN processes again:
  - 1 Name Node
  - 3 Data Node
  - 1 Resource Manager
  - 3 Node Manager
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+If you need to start the HDFS & YARN processes, execute the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
@@ -162,7 +162,7 @@ export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon start nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
@@ -304,15 +304,15 @@ You can check that your HDFS processes are stopped using the following command w
 jps | grep HiveServer2$
 ```
 
-## Stop HDFS & Yarn processes
+## Stop HDFS & YARN processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
+If the command returns any entries, then you need to stop the HDFS & YARN processes using the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
@@ -340,7 +340,7 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon stop nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are stopped using the following command which should return no results:
+You can check that your HDFS & YARN processes are stopped using the following command which should return no results:
 
 ```sh
 jps | grep -E 'Node|Manager'$

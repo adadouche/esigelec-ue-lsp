@@ -138,8 +138,8 @@ Replace the file content with:
         <value>${yarn.home}/tmp/hadoop-master-rm/node-attribute</value>
     </property>
     <property>
-        <name>yarn.resourcemanager.hostname</name>
-        <value>localhost</value>
+        <name>yarn.resourcemanager.bind-host</name>
+        <value>0.0.0.0</value>
     </property>
 </configuration>
 ```
@@ -194,12 +194,8 @@ Replace the file content with:
         <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
     </property>
     <property>
-        <name>yarn.resourcemanager.hostname</name>
-        <value>localhost</value>
-    </property>
-    <property>
-        <name>yarn.nodemanager.hostname</name>
-        <value>localhost</value>
+        <name>yarn.nodemanager.bind-host</name>
+        <value>0.0.0.0</value>
     </property>
     <property>
         <name>yarn.nodemanager.localizer.address</name>
@@ -409,7 +405,7 @@ If the command returns the following, then you don't need to start the HDFS proc
  - 1 Name Node
  - 3 Data Node
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+If you need to start the HDFS & YARN processes, execute the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
@@ -491,15 +487,15 @@ You can now close each of the Ubuntu terminal for the Master Resource Manager & 
 >  - yarn.nodemanager.disk-health-checker.min-healthy-disks
 >  - yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage
 
-## Stop HDFS & Yarn processes
+## Stop HDFS & YARN processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
+If the command returns any entries, then you need to stop the HDFS & YARN processes using the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
@@ -527,7 +523,7 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon stop nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are stopped using the following command which should return no results:
+You can check that your HDFS & YARN processes are stopped using the following command which should return no results:
 
 ```sh
 jps | grep -E 'Node|Manager'$

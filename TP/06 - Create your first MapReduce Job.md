@@ -127,21 +127,21 @@ mkdir -p $HADOOP_HOME/mr/wordcount/jar
 jar cf $HADOOP_HOME/mr/wordcount/jar/WordCount.jar -C $HADOOP_HOME/mr/wordcount/classes .
 ```
 
-## Start HDFS & Yarn processes
+## Start HDFS & YARN processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns the following, then you don't need to start the HDFS & Yarn processes again:
+If the command returns the following, then you don't need to start the HDFS & YARN processes again:
  - 1 Name Node
  - 3 Data Node
  - 1 Resource Manager
  - 3 Node Manager
 
-If you need to start the HDFS & Yarn processes, execute the following commands:
+If you need to start the HDFS & YARN processes, execute the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
@@ -179,7 +179,7 @@ export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon start nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
@@ -229,7 +229,7 @@ The output of your job should look like this:
 2019-12-01 14:13:00,610 INFO mapreduce.JobSubmitter: Executing with tokens: []
 2019-12-01 14:13:00,753 INFO conf.Configuration: resource-types.xml not found
 2019-12-01 14:13:00,754 INFO resource.ResourceUtils: Unable to find 'resource-types.xml'.
-2019-12-01 14:13:00,961 INFO impl.YarnClientImpl: Submitted application application_1575205900027_0001
+2019-12-01 14:13:00,961 INFO impl.YARNClientImpl: Submitted application application_1575205900027_0001
 2019-12-01 14:13:01,002 INFO mapreduce.Job: The url to track the job: http://localhost:8088/proxy/application_1575205900027_0001/
 2019-12-01 14:13:01,003 INFO mapreduce.Job: Running job: job_1575205900027_0001
 2019-12-01 14:13:08,107 INFO mapreduce.Job: Job job_1575205900027_0001 running in uber mode : false
@@ -320,15 +320,15 @@ And the applications:
 
  - http://localhost:8088/cluster/apps
 
-## Stop HDFS & Yarn processes
+## Stop HDFS & YARN processes
 
-You can check that your HDFS & Yarn processes are started using the following command:
+You can check that your HDFS & YARN processes are started using the following command:
 
 ```sh
 jps | grep -E 'Node|Manager'$
 ```
 
-If the command returns any entries, then you need to stop the HDFS & Yarn processes using the following commands:
+If the command returns any entries, then you need to stop the HDFS & YARN processes using the following commands:
 
 ```sh
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
@@ -356,7 +356,7 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-3-nm --daemon stop nodemanager
 ```
 
-You can check that your HDFS & Yarn processes are stopped using the following command which should return no results:
+You can check that your HDFS & YARN processes are stopped using the following command which should return no results:
 
 ```sh
 jps | grep -E 'Node|Manager'$

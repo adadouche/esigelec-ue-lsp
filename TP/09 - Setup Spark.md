@@ -2,15 +2,12 @@
 
 ## Goal
 
-In this tutorial, using your ***simulated*** a multi node Hadoop cluster, you will setup Spark.
+In this tutorial, you will setup Spark.
 
 The main steps are:
 
   - Download and un-compress the Spark Tar ball
-  - Start your HDFS/YARN/MapReduce/Hive processes
-  - Create the Hive Meta store and Temp directory in HDFS
-  - Configure the hive-site file
-  - Start the Hive process
+  - Start the Spark process
 
 ## Prerequisites
 
@@ -48,7 +45,8 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
-wget http://apache.mirrors.benatherton.com/spark/spark-3.0.0-preview/spark-3.0.0-preview-bin-hadoop3.2.tgz
+rm spark-3.0.0-*.tgz
+wget http://apache.crihan.fr/dist/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
 ```
 
 ## Extract the Spark 3.0.0 preview distribution into the Git Folder
@@ -57,9 +55,9 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
-tar xvf spark-3.0.0-preview-bin-hadoop3.2.tgz -C ~/esigelec-ue-lsp-hdp
+tar xvf ~/spark-3.0.0-*.tgz -C ~/esigelec-ue-lsp-hdp
 
-mv ~/esigelec-ue-lsp-hdp/spark-3.0.0-preview-bin-hadoop3.2 ~/esigelec-ue-lsp-hdp/spark-3.0.0
+mv ~/esigelec-ue-lsp-hdp/spark-3.0.0-* ~/esigelec-ue-lsp-hdp/spark-3.0.0
 ```
 
 ## Configure the your environment with Spark environment variables
@@ -130,7 +128,7 @@ You can also get details about HDFS processes using the following URL:
 
  - Spark Web UI : http://localhost:8080/
 
-## Test PySpark shell
+## Check the PySpark version
 
 In your **Ubuntu** terminal, execute:
 
@@ -173,22 +171,10 @@ counts = input_file.flatMap(lambda line: line.split(" ")) \
              .reduceByKey(lambda a, b: a + b) \
              .toDF()
 counts.show()
+exit()
 ```
 
-It assumes that you have uploaded the WordCount.java /home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/mr/wordcount/src/WordCount.java.
-
-Now, paste the following code:
-
-```python
-input_file = sc.textFile("/wordcount/input/WordCount.java")
-counts = input_file.flatMap(lambda line: line.split(" ")) \
-             .map(lambda word: (word, 1)) \
-             .reduceByKey(lambda a, b: a + b) \
-             .toDF()
-counts.show()
-```
-
-It assumes that you have started HDFS and uploaded the WordCount.java in /wordcount/input.
+It assumes that you have the following local file available /home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/mr/wordcount/src/WordCount.java.
 
 ## Stop Spark Master & Slave processes
 
@@ -210,7 +196,3 @@ You can check that your HDFS processes are started using the following command:
 ```sh
 jps | grep -E 'Worker|Master'$
 ```
-
-You can also get details about HDFS processes using the following URL:
-
-- Spark Web UI : http://localhost:8080/
