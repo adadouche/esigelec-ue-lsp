@@ -56,7 +56,7 @@ tar xvf apache-hive-3.1.2-bin.tar.gz -C ~/esigelec-ue-lsp-hdp
 mv ~/esigelec-ue-lsp-hdp/apache-hive-3.1.2-bin ~/esigelec-ue-lsp-hdp/hive-3.1.2
 ```
 
-## Configure the your environment with Hive environment variables
+## Configure your environment with Hive environment variables
 
 In your **Ubuntu** terminal, execute:
 

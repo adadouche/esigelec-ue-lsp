@@ -65,7 +65,7 @@ tar xvf hadoop-3.2.1.tar.gz -C ~/esigelec-ue-lsp-hdp --exclude='hadoop-3.2.1/sha
 
 The documentation is not extracted as it is available online if needed.
 
-## Configure the your environment with Hadoop environment variables
+## Configure your environment with Hadoop environment variables
 
 In your **Ubuntu** terminal, execute:
 
