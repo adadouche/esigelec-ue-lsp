@@ -28,7 +28,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git reset --hard origin/new-step-01
+git reset --hard origin/step-01
 git clean -dfq
 
 ./.setup.sh

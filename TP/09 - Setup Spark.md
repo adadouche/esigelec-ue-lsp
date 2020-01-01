@@ -27,40 +27,41 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git reset --hard origin/new-step-08
+git reset --hard origin/step-08
 git clean -dfq
 
 ./.setup.sh
 ```
 
-## Download the Spark 3.0.0 preview distribution
+## Download the Spark distribution
 
 All Spark download links can be obtained from the following:
 
  - http://spark.apache.org/downloads.html
 
-The version to be downloaded is the Spark 3.0.0 preview release for Hadoop 3.2 or later.
+The version to be downloaded is the Spark 3.0.0-preview2 release for Hadoop 2.7.
 
 In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
-rm spark-3.0.0-*.tgz
+
 wget http://apache.crihan.fr/dist/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
 ```
 
-## Extract the Spark 3.0.0 preview distribution into the Git Folder
-
-In your **Ubuntu** terminal, execute:
+Then execute the following command to move the extracted directory:
 
 ```sh
 cd ~
-tar xvf ~/spark-3.0.0-*.tgz -C ~/esigelec-ue-lsp-hdp
 
-mv ~/esigelec-ue-lsp-hdp/spark-3.0.0-* ~/esigelec-ue-lsp-hdp/spark-3.0.0
+rm -R ~/esigelec-ue-lsp-hdp/spark-*
+
+tar xvf ~/spark-*.tgz -C ~/esigelec-ue-lsp-hdp
+
+mv ~/esigelec-ue-lsp-hdp/spark-* ~/esigelec-ue-lsp-hdp/spark-3.0.0
 ```
 
-## Configure the your environment with Spark environment variables
+## Configure your environment with Spark environment variables
 
 In your **Ubuntu** terminal, execute:
 
@@ -74,11 +75,13 @@ echo -e "umask 022" > $ENV_FILE
 
 echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
-echo -e "export SPARK_HOME=\$LSP_HOME/spark-3.0.0" >> $ENV_FILE
-echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1" >> $ENV_FILE
+echo -e "export SPARK_HOME=$SPARK_HOME" >> $ENV_FILE
+echo -e "export HADOOP_HOME=$HADOOP_HOME" >> $ENV_FILE
 
 echo -e "export PATH=\$PATH:\$SPARK_HOME/bin" >> $ENV_FILE
 echo -e "export PATH=\$PATH:\$SPARK_HOME/sbin" >> $ENV_FILE
+
+export SPARK_DIST_CLASSPATH=$(hadoop classpath)
 
 cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh
 export LINE="export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop-client"
@@ -139,19 +142,24 @@ pyspark --version
 This will give you the current version of the PySpark shell.
 
 ```
-2019-12-01 16:28:58,279 WARN util.Utils: Your hostname, W-PF0VF55M resolves to a loopback address: 127.0.0.1; using 192.168.0.22 instead (on interface eth0)
-2019-12-01 16:28:58,281 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/home/hadoop/esigelec-ue-lsp-hdp/spark-3.0.0/jars/slf4j-log4j12-1.7.16.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/share/hadoop/common/lib/slf4j-log4j12-1.7.25.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
+2019-12-31 15:44:11,041 WARN util.Utils: Your hostname, W-PF0VF55M resolves to a loopback address: 127.0.0.1; using 172.23.79.153 instead (on interface eth0)
+2019-12-31 15:44:11,042 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
 Welcome to
       ____              __
      / __/__  ___ _____/ /__
     _\ \/ _ \/ _ `/ __/  '_/
-   /___/ .__/\_,_/_/ /_/\_\   version 3.0.0-preview
+   /___/ .__/\_,_/_/ /_/\_\   version 3.0.0-preview2
       /_/
 
-Using Scala version 2.12.10, OpenJDK 64-Bit Server VM, 1.8.0_222
+Using Scala version 2.12.10, OpenJDK 64-Bit Server VM, 1.8.0_232
 Branch HEAD
-Compiled by user ubuntu on 2019-10-31T02:05:23Z
-Revision 007c873ae34f58651481ccba30e8e2ba38a692c4
+Compiled by user yumwang on 2019-12-17T04:38:22Z
+Revision bcadd5c3096109878fe26fb0d57a9b7d6fdaa257
 Url https://gitbox.apache.org/repos/asf/spark.git
 Type --help for more information.
 ```
@@ -176,6 +184,10 @@ exit()
 
 It assumes that you have the following local file available /home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/mr/wordcount/src/WordCount.java.
 
+You can also check the Spark job execution at the following URL:
+
+  - Spark Shell Jobs: http://localhost:4040/jobs/
+
 ## Stop Spark Master & Slave processes
 
 You can check that your Spark Master & Slave processes are started using the following command:
@@ -187,8 +199,8 @@ jps | grep -E 'Worker|Master'$
 If the command returns any entries, then you can stop processes using the following commands:
 
 ```sh
-stop-slaves.sh
 stop-master.sh
+stop-slaves.sh
 ```
 
 You can check that your HDFS processes are started using the following command:

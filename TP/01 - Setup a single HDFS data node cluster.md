@@ -39,7 +39,7 @@ cd ~
 git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 
 cd ~/esigelec-ue-lsp-hdp
-git reset --hard origin/new-step-00
+git reset --hard origin/step-00
 git clean -dfq
 
 ./.setup.sh
@@ -80,7 +80,7 @@ echo -e "umask 022" > $ENV_FILE
 echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
 echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $ENV_FILE
-echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1" >> $ENV_FILE
+echo -e "export HADOOP_HOME=$HADOOP_HOME" >> $ENV_FILE
 
 echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin" >> $ENV_FILE
 echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin" >> $ENV_FILE
@@ -131,10 +131,6 @@ Paste in the following configuration:
 For more details about the configuration file, you can check the following link:
 
  - https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/core-default.xml
-
-For more details about the configuration file, you can check the following link:
-
-- https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml
 
 ## Initialize HDFS
 

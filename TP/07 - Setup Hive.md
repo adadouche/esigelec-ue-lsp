@@ -30,7 +30,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git reset --hard origin/new-step-06
+git reset --hard origin/step-06
 git clean -dfq
 
 ./.setup.sh
@@ -42,6 +42,7 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
+
 wget https://apache.mirrors.benatherton.com/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz
 ```
 
@@ -51,9 +52,42 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
+
 tar xvf apache-hive-3.1.2-bin.tar.gz -C ~/esigelec-ue-lsp-hdp
 
 mv ~/esigelec-ue-lsp-hdp/apache-hive-3.1.2-bin ~/esigelec-ue-lsp-hdp/hive-3.1.2
+```
+
+## Download the Tez 0.9.2 distribution
+
+Downloading Tez will help Hive start faster.
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+cd ~
+
+wget https://apache.mirrors.benatherton.com/tez/0.9.2/apache-tez-0.9.2-bin.tar.gz
+```
+
+## Extract the Tez 0.9.2 distribution into the Git Folder
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+cd ~
+
+tar xvf ~/apache-tez-*.tar.gz -C ~/esigelec-ue-lsp-hdp
+
+mv ~/esigelec-ue-lsp-hdp/apache-tez-* ~/esigelec-ue-lsp-hdp/tez
+```
+
+## Add the Tez 0.9.2 library to Hive
+
+In your **Ubuntu** terminal, execute:
+
+```sh
+cp ~/esigelec-ue-lsp-hdp/tez/tez-*.jar ~/esigelec-ue-lsp-hdp/hive-*/lib
 ```
 
 ## Configure your environment with Hive environment variables
@@ -70,7 +104,7 @@ echo -e "umask 022" > $ENV_FILE
 
 echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
-echo -e "export HIVE_HOME=\$LSP_HOME/hive-3.1.2" >> $ENV_FILE
+echo -e "export HIVE_HOME=$HIVE_HOME" >> $ENV_FILE
 echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf" >> $ENV_FILE
 
 echo -e "export PATH=\$PATH:\$HIVE_HOME/bin" >> $ENV_FILE
@@ -79,7 +113,7 @@ echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhive.home='\$HIVE_HOME' \"" >> $EN
 
 cp $HIVE_HOME/conf/hive-env.sh.template $HIVE_HOME/conf/hive-env.sh
 
-export LINE="export HADOOP_HOME=$LSP_HOME/hadoop-3.2.1"
+export LINE="export HADOOP_HOME=\$HADOOP_HOME"
 grep -qF "$LINE" $HIVE_HOME/conf/hive-env.sh || echo -e $LINE >> $HIVE_HOME/conf/hive-env.sh
 
 export LINE="export HIVE_CONF_DIR=\$HIVE_HOME/conf"
@@ -135,6 +169,9 @@ For this tutorial, you will use the following HDFS & Yarn processes :
 To start the HDFS & Yarn processes, execute the following commands:
 
 ```sh
+rm -rf $HADOOP_HOME/tmp/* $HADOOP_HOME/data/* $HADOOP_HOME/logs/* $HADOOP_HOME/pid/*
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
@@ -147,7 +184,7 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 
-sleep 30
+hdfs dfsadmin -safemode leave
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm
@@ -160,7 +197,6 @@ yarn --config $HADOOP_HOME/etc/hadoop-slave-1-nm --daemon start nodemanager
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-2-nm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-2-nm
 yarn --config $HADOOP_HOME/etc/hadoop-slave-2-nm --daemon start nodemanager
-
 ```
 
 You can check that your HDFS & YARN processes are started using the following command:

@@ -135,7 +135,7 @@ Replace the file content with:
     </property>
     <property>
         <name>yarn.node-attribute.fs-store.root-dir</name>
-        <value>${yarn.home}/tmp/hadoop-master-rm/node-attribute</value>
+        <value>${hadoop.home}/tmp/hadoop-master-rm/node-attribute</value>
     </property>
     <property>
         <name>yarn.resourcemanager.bind-host</name>
@@ -199,11 +199,11 @@ Replace the file content with:
     </property>
     <property>
         <name>yarn.nodemanager.localizer.address</name>
-        <value>${yarn.nodemanager.hostname}:8140</value>
+        <value>0.0.0.0:8140</value>
     </property>
 	  <property>
         <name>yarn.nodemanager.webapp.address</name>
-        <value>${yarn.nodemanager.hostname}:8142</value>
+        <value>0.0.0.0:8142</value>
     </property>
 </configuration>
 ```
@@ -377,7 +377,7 @@ Replace the file content with:
 In your **Ubuntu** terminal, execute the following commands:
 
 ```sh
-cp "$HADOOP_HOME/etc/hadoop/mapred-site.xml" "$HADOOP_HOME/etc/hadoop-client/yarn-site.xml"
+cp "$HADOOP_HOME/etc/hadoop/yarn-site.xml" "$HADOOP_HOME/etc/hadoop-client/yarn-site.xml"
 
 nano "$HADOOP_HOME/etc/hadoop-client/yarn-site.xml"
 ```
@@ -388,7 +388,7 @@ Replace the file content with:
 <configuration>
     <property>
         <name>yarn.resourcemanager.hostname</name>
-        <value>localhost</value>
+        <value>0.0.0.0</value>
     </property>
 </configuration>
 ```
@@ -423,6 +423,8 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
+
+hdfs dfsadmin -safemode leave
 ```
 
 You can check that your HDFS processes are started using the following command:
@@ -532,5 +534,5 @@ jps | grep -E 'Node|Manager'$
 If processes remains in the list then you can execute the following commands to kill them:
 
 ```sh
-kill $(jps -mlV | grep -E 'Node|Manager|NodeManager' | awk '{ print $1 }')
+kill $(jps -mlV | grep -E 'Node|Manager' | awk '{ print $1 }')
 ```

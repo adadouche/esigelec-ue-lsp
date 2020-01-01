@@ -24,7 +24,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git reset --hard origin/new-step-05
+git reset --hard origin/step-05
 git clean -dfq
 
 ./.setup.sh
@@ -144,6 +144,9 @@ If the command returns the following, then you don't need to start the HDFS & YA
 If you need to start the HDFS & YARN processes, execute the following commands:
 
 ```sh
+rm -rf $HADOOP_HOME/tmp/* $HADOOP_HOME/data/* $HADOOP_HOME/logs/* $HADOOP_HOME/pid/*
+hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
+
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn  
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn  
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
@@ -160,7 +163,7 @@ export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
 
-sleep 30
+hdfs dfsadmin -safemode leave
 
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-rm
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-rm

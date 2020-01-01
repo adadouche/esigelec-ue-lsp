@@ -28,7 +28,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git reset --hard origin/new-step-03
+git reset --hard origin/step-03
 git clean -dfq
 
 ./.setup.sh
@@ -49,11 +49,9 @@ If the command returns the following, then you don't need to start the HDFS proc
 If you need to start the HDFS & YARN processes, execute the following commands:
 
 ```sh
-# First we reformat the Name Node to avoid inconsistency issues
 rm -rf $HADOOP_HOME/tmp/* $HADOOP_HOME/data/* $HADOOP_HOME/logs/* $HADOOP_HOME/pid/*
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn namenode -format -force -clusterID local
 
-# Then we start the processes as daemons
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-master-nn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-master-nn
 hdfs --config $HADOOP_HOME/etc/hadoop-master-nn --daemon start namenode
@@ -69,6 +67,8 @@ hdfs --config $HADOOP_HOME/etc/hadoop-slave-2-dn --daemon start datanode
 export HADOOP_PID_DIR=$HADOOP_HOME/pid/hadoop-slave-3-dn
 export HADOOP_LOG_DIR=$HADOOP_HOME/logs/hadoop-slave-3-dn
 hdfs --config $HADOOP_HOME/etc/hadoop-slave-3-dn --daemon start datanode
+
+hdfs dfsadmin -safemode leave
 ```
 
 You can check that your HDFS processes are started using the following command:
@@ -91,7 +91,8 @@ You can use the following commands to download:
 
 ```sh
 cd $LSP_HOME
-rm  $LSP_HOME/'1500000_Sales_Records.7z'
+
+rm  -f $LSP_HOME/'1500000_Sales_Records.7z'
 
 wget http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
 

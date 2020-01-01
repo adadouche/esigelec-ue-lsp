@@ -50,8 +50,8 @@ Before getting started, let's add your new user to the sudoers and prevent passw
 In your Ubuntu terminal, execute the following commands:
 
 ```sh
-sudo bash -c 'echo "hadoop ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
-sudo bash -c 'echo "umask 022" >> ~/.bashrc'
+export LINE="$USER ALL=(ALL) NOPASSWD: ALL"
+sudo grep -qF "$LINE" /etc/sudoers || sudo USER=$USER bash -c 'echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
 ```
 
 **Make sure to adjust the user if yu choose not to use hadoop as your username.**
@@ -74,7 +74,7 @@ sudo mount -t drvfs C: /mnt/c -o metadata
 Now, you will need to update your Ubuntu system with the latest updates using the following command:
 
 ```sh
-sudo apt-get update
+sudo apt-get -y update
 ```
 
 ## Install the openJDK 8
@@ -138,21 +138,45 @@ sudo service ssh restart
 Create the user key:
 
 ```sh
-rm -r ~/.ssh
+rm -rf ~/.ssh
 
 ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa -q
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 chmod 0600 ~/.ssh/authorized_keys
+
+ssh-keyscan -t rsa -H localhost >> ~/.ssh/known_hosts
+ssh-keyscan -t rsa -H 127.0.0.1 >> ~/.ssh/known_hosts
 ```
 
 Then connect to your localhost:
 
 ```sh
-ssh localhost
+ssh localhost 'exit'
 ```
+## Assign a host name / ip automagically
 
-Once connected, you can then exit the ssh and the bash session by executing:
+Now, you need to get the host ip address and assign a name like hadoop-host to ease the use of web addresses.
+
+Execute the following command:
 
 ```sh
-exit
+export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_sys_env.sh
+
+rm -f $ENV_FILE
+echo -e "export host_name=\$(hostname)"                                                          >> $ENV_FILE
+echo -e "export host_fqdn=\$(hostname -A)"                                                       >> $ENV_FILE
+echo -e "export host_ipv4=\$(hostname -I)"                                                       >> $ENV_FILE
+echo -e "export host_ipv6=\$(ip addr show dev eth0 | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')" >> $ENV_FILE
+
+echo -e "sudo cp -n /etc/hosts          /etc/hosts.original" >> $ENV_FILE
+echo -e "sudo cp    /etc/hosts.original /etc/hosts         " >> $ENV_FILE
+echo -e "sudo sed -i -e \"s|127.0.0.1|# 127.0.0.1|g\" /etc/hosts" >> $ENV_FILE
+echo -e "sudo sed -i -e \"s|127.0.1.1|# 127.0.1.1|g\" /etc/hosts" >> $ENV_FILE
+echo -e "sudo sed -i -e \"s|::1|# ::1|g\"             /etc/hosts" >> $ENV_FILE
+
+echo -e "sudo bash -c 'echo \"${host_ipv4} ${host_name} ${host_fqdn} localhost\" >> /etc/hosts'" >> $ENV_FILE
+
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+
+source $ENV_FILE
 ```
