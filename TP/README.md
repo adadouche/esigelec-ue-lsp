@@ -12,3 +12,5 @@ The tutorials:
 - [07 - Setup Hive](https://github.com/adadouche/esigelec-ue-lsp/tree/master/TP/07%20-%20Setup%20Hive.md)
 - [08 - Import & Query Data in Hive](https://github.com/adadouche/esigelec-ue-lsp/tree/master/TP/08%20-%20Import%20&%20Query%20Data%20in%20Hive.md)
 - [09 - Setup Spark](https://github.com/adadouche/esigelec-ue-lsp/blob/master/TP/09%20-%20Setup%20Spark.md)
+- [10 - Spark Standalone with Local & HDFS files](https://github.com/adadouche/esigelec-ue-lsp/blob/master/TP/10%20-%20Spark%20Standalone%20with%20Local%20%26%20HDFS%20files.md)
+- [11 - Spark on YARN with Local & HDFS files](https://github.com/adadouche/esigelec-ue-lsp/blob/master/TP/11%20-%20Spark%20on%20YARN%20with%20Local%20%26%20HDFS%20files.md)
