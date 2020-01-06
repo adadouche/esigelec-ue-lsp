@@ -33,6 +33,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
+git pull
 git reset --hard origin/step-10
 git clean -dfq
 

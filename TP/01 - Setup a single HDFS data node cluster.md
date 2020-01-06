@@ -39,6 +39,8 @@ cd ~
 git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 
 cd ~/esigelec-ue-lsp-hdp
+
+git pull
 git reset --hard origin/step-00
 git clean -dfq
 
