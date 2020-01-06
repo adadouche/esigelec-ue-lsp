@@ -33,7 +33,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git reset --hard origin/new-step-10
+git reset --hard origin/step-10
 git clean -dfq
 
 ./.setup.sh
@@ -376,8 +376,8 @@ jps | grep -E 'Worker|Master'$
 If the command returns any entries, then you can stop processes using the following commands:
 
 ```sh
-stop-slaves.sh
 stop-master.sh
+stop-slaves.sh
 ```
 
 You can check that your HDFS processes are started using the following command:
