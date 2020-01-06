@@ -12,3 +12,7 @@ The course material :
 - [07 - MapReduce.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/07%20-%20MapReduce.pdf)
 - [08 - MapReduce Explained.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/08%20-%20MapReduce%20Explained.pdf)
 - [09 - Hive.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/09%20-%20Hive.pdf)
+- [10 - Spark.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/10%20-%20Spark.pdf)
+- [11 - Spark SQL.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/11%20-%20Spark%20SQL.pdf)
+- [12 - Spark SQL - Catalyst Optimzer.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/12%20-%20Spark%20SQL%20-%20Catalyst%20Optimzer.pdf)
+- [13 - Spark SQL - RDD vs DataSet vs DataFrame.pdf](https://github.com/adadouche/esigelec-ue-lsp/blob/master/Cours/13%20-%20Spark%20SQL%20-%20RDD%20vs%20DataSet%20vs%20DataFrame.pdf)
