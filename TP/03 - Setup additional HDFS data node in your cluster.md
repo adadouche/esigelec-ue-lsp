@@ -84,7 +84,7 @@ kill -9 $(jps -mlV | awk '{ print $1 }')
 In your **Ubuntu** terminal, execute the following commands:
 
 ```sh
-mkdir $HADOOP_HOME/etc/hadoop-master-nn
+mkdir -p $HADOOP_HOME/etc/hadoop-master-nn
 
 cp $HADOOP_HOME/etc/hadoop/core-site.xml $HADOOP_HOME/etc/hadoop-master-nn/core-site.xml
 

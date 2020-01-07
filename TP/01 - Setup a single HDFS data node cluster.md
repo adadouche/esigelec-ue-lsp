@@ -77,24 +77,24 @@ export HADOOP_HOME=$(echo ~)/esigelec-ue-lsp-hdp/hadoop-3.2.1
 
 rm -f $ENV_FILE
 
-echo -e "umask 022" > $ENV_FILE
+echo -e "#!/bin/bash
 
-echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
+export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
 
-echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $ENV_FILE
-echo -e "export HADOOP_HOME=$HADOOP_HOME" >> $ENV_FILE
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1
 
-echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin" >> $ENV_FILE
-echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin" >> $ENV_FILE
+export HADOOP_BIN_PATH=\$HADOOP_HOME/bin
+export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin
 
-echo -e "export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop" >> $ENV_FILE
-echo -e "export HADOOP_LOG_DIR=\$HADOOP_HOME/logs" >> $ENV_FILE
+export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+export HADOOP_LOG_DIR=\$HADOOP_HOME/logs
 
-echo -e "export PATH=\$PATH:\$HADOOP_BIN_PATH" >> $ENV_FILE
-echo -e "export PATH=\$PATH:\$HADOOP_SBIN_PATH" >> $ENV_FILE
-echo -e "export PATH=\$PATH:\$JAVA_HOME/bin" >> $ENV_FILE
+export PATH=\$PATH:\$HADOOP_BIN_PATH
+export PATH=\$PATH:\$HADOOP_SBIN_PATH
+export PATH=\$PATH:\$JAVA_HOME/bin
 
-echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""  >> $ENV_FILE
+export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""  >> $ENV_FILE
 
 export LINE="export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""
 grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/hadoop-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh

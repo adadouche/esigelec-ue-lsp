@@ -68,29 +68,26 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_spark_env.sh
-export SPARK_HOME=$(echo ~)/esigelec-ue-lsp-hdp/spark-3.0.0
 
 rm -f $ENV_FILE
 
-echo -e "umask 022" > $ENV_FILE
+echo -e "#!/bin/bash
 
-echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
+export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
 
-echo -e "export SPARK_HOME=$SPARK_HOME" >> $ENV_FILE
-echo -e "export HADOOP_HOME=$HADOOP_HOME" >> $ENV_FILE
+export SPARK_HOME=\$LSP_HOME/spark-3.0.0
 
-echo -e "export PATH=\$PATH:\$SPARK_HOME/bin" >> $ENV_FILE
-echo -e "export PATH=\$PATH:\$SPARK_HOME/sbin" >> $ENV_FILE
+export PATH=\$PATH:\$SPARK_HOME/bin
+export PATH=\$PATH:\$SPARK_HOME/sbin" >> $ENV_FILE
 
-export SPARK_DIST_CLASSPATH=$(hadoop classpath)
+source $ENV_FILE
 
 cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh
+
 export LINE="export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop-client"
 grep -qF "$LINE" $SPARK_HOME/conf/spark-env.sh || echo -e $LINE >> $SPARK_HOME/conf/spark-env.sh
 
 grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
-source $ENV_FILE
 ```
 
 ## Start Spark Master & Slave processes
