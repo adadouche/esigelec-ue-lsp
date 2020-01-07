@@ -1,8 +1,8 @@
-# Spark Standalone with Local & HDFS files
+# Spark Standalone / Local mode
 
 ## Goal
 
-In this tutorial, you will start building your first Spark programs and tryout different options using Spark Standalone mode:
+In this tutorial, you will start building your first Spark programs and tryout different options using Spark local mode:
 
 - consume a text file store locally then in HDFS (WordCount example)
 - consume a CSV file store locally then in HDFS (1500000_Sales_Records example)
@@ -12,6 +12,8 @@ The main steps are:
   - Start HDFS processes
   - Start Spark processes
   - Use PySpark to execute your scripts
+
+In this mode the process is handled locally in the PySpark process, therefore you don't need to start the Spark cluster.
 
 ## Prerequisites
 
@@ -81,7 +83,6 @@ You can also get details about HDFS processes using the following URL:
 
 In our example, you will be using the 1500000_Sales_Records and the WordCount java program as input files.
 
-
 First, download the 1500000_Sales_Records file locally and extract it:
 
 ```sh
@@ -107,57 +108,22 @@ hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put $HADOOP_HOME/mr/wordcount/
 hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -Ddfs.block.size=10m -put $(echo ~)/esigelec-ue-lsp-hdp/1500000_Sales_Records.csv /1500000_Sales_Records.csv
 ```
 
-## Start Spark Master & Slave processes
-
-You can check that your Spark Master & Slave processes are started using the following command:
-
-```sh
-jps | grep -E 'Worker|Master'$
-```
-
-If the command returns the following, then you don't need to start the Spark Master & Slave processes again:
- - 1 Master
- - 1 Worker
-
-If you need to start the Spark Master & Slave processes, execute the following commands:
-
-```sh
-start-master.sh
-start-slaves.sh
-```
-
-> ### **Note:**
-> if you receive the following error message:
-```
-localhost: ssh: connect to host localhost port 22: Connection refused
-```
-> then execute the following commands to restart ssh:
-```sh
-sudo service ssh restart
-```
-
-You can check that your HDFS processes are started using the following command:
-
-```sh
-jps | grep -E 'Worker|Master'$
-```
-
-You can also get details about HDFS processes using the following URL:
-
- - Spark Web UI : http://localhost:8080/
-
-## Spark Jobs - Local/HDFS Text file
+## Spark Jobs - Local mode - Local/HDFS Text file
 
 In your **Ubuntu** terminal, execute:
 
 ```sh
 pyspark
 ```
+You can check the job execution at the following URL:
+
+  - Spark Shell Jobs: http://localhost:4040/jobs/
 
 Then you can paste the following code:
 
 ```python
 input_file = sc.textFile("file:///home/hadoop/esigelec-ue-lsp-hdp/hadoop-3.2.1/mr/wordcount/src/WordCount.java")
+
 counts = input_file.flatMap(lambda line: line.split(" ")) \
              .map(lambda word: (word, 1)) \
              .reduceByKey(lambda a, b: a + b) \
@@ -171,6 +137,7 @@ Now, paste the following code:
 
 ```python
 input_file = sc.textFile("hdfs://localhost:9000/wordcount/input/WordCount.java")
+
 counts = input_file.flatMap(lambda line: line.split(" ")) \
              .map(lambda word: (word, 1)) \
              .reduceByKey(lambda a, b: a + b) \
@@ -182,11 +149,7 @@ It assumes that you have started HDFS and uploaded the WordCount.java in /wordco
 
 Note the difference in the file path with the address of your HDFS NameNode server.
 
-You can also check the Spark job execution at the following URL:
-
-  - Spark Shell Jobs: http://localhost:4040/jobs/
-
-## Spark Jobs - Local/HDFS CSV file
+## Spark Jobs - Local mode - Local/HDFS CSV file
 
 Now, let's count words only in the 1500000_Sales_Records file as done previously (where you skipped dates and numbers) using the following code:
 

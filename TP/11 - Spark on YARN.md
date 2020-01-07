@@ -1,4 +1,4 @@
-# Spark on YARN with Local & HDFS files
+# Spark on YARN
 
 ## Goal
 
@@ -6,14 +6,15 @@ In this tutorial, you will start building your first Spark programs and tryout d
 
 - consume a text file store locally then in HDFS (WordCount example)
 - consume a CSV file store locally then in HDFS (1500000_Sales_Records example)
-- try Spark client/cluster mode on YARN
+- try Spark "client" & "cluster" mode on YARN
 
 The main steps are:
 
   - Start HDFS/YARN processes
   - Configure Spark for YARN (JAR caching for optimization)
-  - Start Spark processes
   - Use PySpark or Spark-Submit to execute your scripts
+
+In this mode, the process is handled by YARN as a Resource Manager, therefore you don't need to start the Spark cluster.
 
 ## Prerequisites
 
@@ -149,46 +150,6 @@ hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -mkdir -p /spark-jars
 
 hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -put $SPARK_HOME/jars/* /spark-jars/
 ```
-
-## Start Spark Master & Slave processes
-
-You can check that your Spark Master & Slave processes are started using the following command:
-
-```sh
-jps | grep -E 'Worker|Master'$
-```
-
-If the command returns the following, then you don't need to start the Spark Master & Slave processes again:
- - 1 Master
- - 1 Worker
-
-If you need to start the Spark Master & Slave processes, execute the following commands:
-
-```sh
-start-master.sh
-start-slaves.sh
-```
-
-> ### **Note:**
-> if you receive the following error message:
-```
-localhost: ssh: connect to host localhost port 22: Connection refused
-```
-> then execute the following commands to restart ssh:
-```sh
-sudo service ssh restart
-```
-
-You can check that your HDFS processes are started using the following command:
-
-```sh
-jps | grep -E 'Worker|Master'$
-```
-
-You can also get details about Spark processes using the following URL:
-
- - Spark Web UI : http://localhost:8080/
-
 ## Spark Jobs - Use YARN client mode (PySpark shell)
 
 One of the possible Spark deployment is to leverage the YARN cluster either in client or cluster mode.
@@ -349,7 +310,7 @@ You can also get details about the process using the following URL:
 
  - YARN Resource Manager : http://localhost:8088/
 
-## Spark Jobs - Use Standalone mode (with Spark-Submit)
+## Spark Jobs - Use local mode (with Spark-Submit)
 
 You can also run it in ***Standalone mode***:
 
@@ -364,33 +325,7 @@ hdfs --config $HADOOP_HOME/etc/hadoop-client dfs -cat /1500000_Sales_Records_res
 
 You can also get details about the process using the following URL:
 
- - Spark Web UI : http://localhost:8080/
-
-## Stop Spark Master & Slave processes
-
-You can check that your Spark Master & Slave processes are started using the following command:
-
-```sh
-jps | grep -E 'Worker|Master'$
-```
-
-If the command returns any entries, then you can stop processes using the following commands:
-
-```sh
-stop-master.sh
-stop-slaves.sh
-```
-
-You can check that your HDFS processes are started using the following command:
-
-```sh
-jps | grep -E 'Worker|Master'$
-```
-
-You can also get details about HDFS processes using the following URL:
-
-- Spark Web UI : http://localhost:8080/
-
+ - Spark Web UI : http://localhost:4040/
 
 ## Stop HDFS & YARN processes
 
