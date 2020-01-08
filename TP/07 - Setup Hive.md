@@ -100,16 +100,16 @@ export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
 
 rm -f $ENV_FILE
 
-echo -e "#!/bin/bash
+echo -e "#!/bin/bash"  >> $ENV_FILE
 
-export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
+echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp"  >> $ENV_FILE
 
-export HIVE_HOME=$LSP_HOME/hive-3.1.2
-export HIVE_CONF_DIR=\$HIVE_HOME/conf
+echo -e "export HIVE_HOME=\$LSP_HOME/hive-3.1.2"  >> $ENV_FILE
+echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf"  >> $ENV_FILE
 
-export PATH=\$PATH:\$HIVE_HOME/bin
+echo -e "export PATH=\$PATH:\$HIVE_HOME/bin"  >> $ENV_FILE
 
-export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhive.home='\$HIVE_HOME' \"" >> $ENV_FILE
+echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhive.home='\$HIVE_HOME' \"" >> $ENV_FILE
 
 source $ENV_FILE
 

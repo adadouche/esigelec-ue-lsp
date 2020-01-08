@@ -71,14 +71,14 @@ export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_spark_env.sh
 
 rm -f $ENV_FILE
 
-echo -e "#!/bin/bash
+echo -e "#!/bin/bash" >> $ENV_FILE
 
-export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
+echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
 
-export SPARK_HOME=\$LSP_HOME/spark-3.0.0
+echo -e "export SPARK_HOME=\$LSP_HOME/spark-3.0.0" >> $ENV_FILE
 
-export PATH=\$PATH:\$SPARK_HOME/bin
-export PATH=\$PATH:\$SPARK_HOME/sbin" >> $ENV_FILE
+echo -e "export PATH=\$PATH:\$SPARK_HOME/bin" >> $ENV_FILE
+echo -e "export PATH=\$PATH:\$SPARK_HOME/sbin" >> $ENV_FILE
 
 source $ENV_FILE
 
