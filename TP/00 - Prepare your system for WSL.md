@@ -92,7 +92,6 @@ The JDK will be available at:
 
  - /usr/lib/jvm/java-8-openjdk-amd64/
 
-
 ## Install the 7zip
 
 Then, you will need to install 7zip on your Ubuntu system using the following command:
@@ -144,37 +143,41 @@ ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa -q
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 chmod 0600 ~/.ssh/authorized_keys
 
-ssh-keyscan -t rsa -H localhost >> ~/.ssh/known_hosts
-ssh-keyscan -t rsa -H 127.0.0.1 >> ~/.ssh/known_hosts
+echo "Host *" > ~/.ssh/config     
+echo " StrictHostKeyChecking no" >> ~/.ssh/config
 ```
 
-Then connect to your localhost:
+Then connect to your host via different addresses and names:
 
 ```sh
 ssh localhost 'exit'
+ssh 127.0.0.1 'exit'
+ssh $(hostname -I) 'exit'
+ssh $(hostname) 'exit'
 ```
 ## Assign a host name / ip automagically
 
-Now, you need to get the host ip address and assign a name like hadoop-host to ease the use of web addresses.
+Now, you need to get the host ip address and assign to your local host name to ease the use of web addresses.
 
 Execute the following command:
 
 ```sh
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_sys_env.sh
+export ENV_FILE=~/esigelec-ue-lsp-hdp/env/set-host-env.sh
+echo \#\!/bin/bash > $ENV_FILE
+echo "
+sudo cp -n /etc/hosts          /etc/hosts.original
+sudo cp    /etc/hosts.original /etc/hosts
 
-rm -f $ENV_FILE
-echo -e "export host_name=\$(hostname)"                                                          >> $ENV_FILE
-echo -e "export host_fqdn=\$(hostname -A)"                                                       >> $ENV_FILE
-echo -e "export host_ipv4=\$(hostname -I)"                                                       >> $ENV_FILE
-echo -e "export host_ipv6=\$(ip addr show dev eth0 | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')" >> $ENV_FILE
+sudo sed -i -e \"s|127.0.0.1|\$(hostname -I)|g\" /etc/hosts
+sudo sed -i -e \"s|127.0.1.1|\$(hostname -I)|g\" /etc/hosts
+sudo sed -i -e \"s|::1|# ::1|g\"             /etc/hosts
 
-echo -e "sudo cp -n /etc/hosts          /etc/hosts.original" >> $ENV_FILE
-echo -e "sudo cp    /etc/hosts.original /etc/hosts         " >> $ENV_FILE
-echo -e "sudo sed -i -e \"s|127.0.0.1|# 127.0.0.1|g\" /etc/hosts" >> $ENV_FILE
-echo -e "sudo sed -i -e \"s|127.0.1.1|# 127.0.1.1|g\" /etc/hosts" >> $ENV_FILE
-echo -e "sudo sed -i -e \"s|::1|# ::1|g\"             /etc/hosts" >> $ENV_FILE
+# sudo bash -c 'echo \"\$(hostname -I) \$(hostname).\$(domainname) \$(hostname) localhost\" >> /etc/hosts'
+export set_sys_env=done
+" >> $ENV_FILE
 
-echo -e "sudo bash -c 'echo \"${host_ipv4} ${host_name} ${host_fqdn} localhost\" >> /etc/hosts'" >> $ENV_FILE
+dos2unix $ENV_FILE
+chmod ugo+x $ENV_FILE
 
 grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 
