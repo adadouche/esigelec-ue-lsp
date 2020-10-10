@@ -54,11 +54,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-02
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-02
 ```
 
 ## Stop your current HDFS processes

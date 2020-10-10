@@ -30,11 +30,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-06
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-06
 ```
 
 ## Download the Hive 3.1.2 distribution
@@ -44,7 +40,7 @@ In your **Ubuntu** terminal, execute:
 ```sh
 cd ~
 
-wget https://apache.mirrors.benatherton.com/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz
+wget -nc https://apache.mirrors.benatherton.com/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz
 ```
 
 ## Extract the Hive 3.1.2 distribution into the Git Folder
@@ -68,7 +64,7 @@ In your **Ubuntu** terminal, execute:
 ```sh
 cd ~
 
-wget https://apache.mirrors.benatherton.com/tez/0.9.2/apache-tez-0.9.2-bin.tar.gz
+wget -nc https://apache.mirrors.benatherton.com/tez/0.9.2/apache-tez-0.9.2-bin.tar.gz
 ```
 
 ## Extract the Tez 0.9.2 distribution into the Git Folder
@@ -90,29 +86,36 @@ In your **Ubuntu** terminal, execute:
 ```sh
 cp ~/esigelec-ue-lsp-hdp/tez/tez-*.jar ~/esigelec-ue-lsp-hdp/hive-*/lib
 ```
-
-## Configure your environment with Hive environment variables
+## Configure your BASH environment with Hive environment variables
 
 In your **Ubuntu** terminal, execute:
 
 ```sh
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hive_env.sh
+export ENV_FILE=~/esigelec-ue-lsp-hdp/env/set-hive-env.sh
+echo \#\!/bin/bash > $ENV_FILE
+echo "
+export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
 
-rm -f $ENV_FILE
+export HIVE_HOME=\$LSP_HOME/hive-3.1.2
+export HIVE_CONF_DIR=\$HIVE_HOME/conf
 
-echo -e "#!/bin/bash"  >> $ENV_FILE
+export PATH=\$PATH:\$HIVE_HOME/bin
 
-echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp"  >> $ENV_FILE
+export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhive.home='\$HIVE_HOME' \"
+export set_hive_env=done
+" >> $ENV_FILE
 
-echo -e "export HIVE_HOME=\$LSP_HOME/hive-3.1.2"  >> $ENV_FILE
-echo -e "export HIVE_CONF_DIR=\$HIVE_HOME/conf"  >> $ENV_FILE
+dos2unix $ENV_FILE
+chmod ugo+x $ENV_FILE
 
-echo -e "export PATH=\$PATH:\$HIVE_HOME/bin"  >> $ENV_FILE
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
+```
 
-echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhive.home='\$HIVE_HOME' \"" >> $ENV_FILE
+## Configure your Hadoop environment file
 
-source $ENV_FILE
+In your **Ubuntu** terminal, execute:
 
+```sh
 cp $HIVE_HOME/conf/hive-env.sh.template $HIVE_HOME/conf/hive-env.sh
 
 export LINE="export HADOOP_HOME=\$HADOOP_HOME"
@@ -129,8 +132,6 @@ grep -qF "$LINE" $HIVE_HOME/conf/hive-env.sh || echo -e $LINE >> $HIVE_HOME/conf
 
 export LINE="export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
 grep -qF "$LINE" $HIVE_HOME/conf/hive-env.sh || echo -e $LINE >> $HIVE_HOME/conf/hive-env.sh
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 ```
 
 ## Copy GUAVA version from Hadoop to the Hive 3.1.2 distribution

@@ -24,11 +24,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-05
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-05
 ```
 
 ## The WordCount example

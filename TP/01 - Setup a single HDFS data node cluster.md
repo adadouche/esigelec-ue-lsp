@@ -2,7 +2,7 @@
 
 ## Goal
 
-In this tutorial, you will use the "plain" Hadoop 3.2.1 distribution and start it as a single node cluster.
+In this tutorial, you will use the "plain" Hadoop 3.3.0 distribution and start it as a single node cluster.
 
 The goal here is to identify the set of environment variables required to properly start your Hadoop instance:
  - JAVA_HOME
@@ -24,90 +24,97 @@ PLEASE BE DON'T BE CREATIVE WITH FOLDER NAMES!!!!</span></p>**
 
 > #### **Note:**
 >Keep in mind that if you format your Name Node with existing data in your Data Node, you will receive an error because the cluster ids won't match.
->When formatting, you Name Node you can specify the cluster id.
+>When formatting your Name Node you can specify the cluster id.
 
-## Prerequisites
+## Prerequisites - Not required when using Azure Labs
 
 If you didn't manage to finish the previous step, you can start from fresh using the last step branch from Git.
 
 It assumes that you don't have an existing directory **esigelec-ue-lsp-hdp** in your Ubuntu home directory (**~**).
 
-Open an **Ubuntu** terminal and execute:
+If you didn't clone the repository yet, you can do so using the following command:
 
 ```sh
 cd ~
 git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
+```
 
+Now checkout the current step branch:
+
+```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-00
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-00
 ```
 
-## Download the Hadoop 3.2.1 distribution
+## Download the Hadoop 3.3.0 distribution - Not required when using Azure Labs
 
 In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
-wget http://apache.crihan.fr/dist/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+wget -nc http://apache.crihan.fr/dist/hadoop/common/hadoop-3.3.0/hadoop-3.3.0.tar.gz
 ```
 
-## Extract the Hadoop 3.2.1 distribution into the Git Folder
+## Extract the Hadoop 3.3.0 distribution into the Git Folder
 
 In your **Ubuntu** terminal, execute:
 
 ```sh
 cd ~
-tar xvf hadoop-3.2.1.tar.gz -C ~/esigelec-ue-lsp-hdp --exclude='hadoop-3.2.1/share/doc'
+tar xvf hadoop-3.3.0.tar.gz -C ~/esigelec-ue-lsp-hdp --exclude='hadoop-3.3.0/share/doc'
 ```
 
 The documentation is not extracted as it is available online if needed.
 
-## Configure your environment with Hadoop environment variables
+## Configure your BASH environment with Hadoop environment variables
 
 In your **Ubuntu** terminal, execute:
 
 ```sh
-export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_hadoop_env.sh
+export ENV_FILE=~/esigelec-ue-lsp-hdp/env/set-hadoop-env.sh
+echo \#\!/bin/bash > $ENV_FILE
+echo "
+export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
 
-rm -f $ENV_FILE
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_HOME=\$LSP_HOME/hadoop-3.3.0
 
-echo -e "#!/bin/bash"  >> $ENV_FILE
+export HADOOP_BIN_PATH=\$HADOOP_HOME/bin
+export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin
 
-echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp"  >> $ENV_FILE
+export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop
+export HADOOP_LOG_DIR=\$HADOOP_HOME/logs
 
-echo -e "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"  >> $ENV_FILE
-echo -e "export HADOOP_HOME=\$LSP_HOME/hadoop-3.2.1"  >> $ENV_FILE
+export PATH=\$PATH:\$HADOOP_BIN_PATH
+export PATH=\$PATH:\$HADOOP_SBIN_PATH
+export PATH=\$PATH:\$JAVA_HOME/bin
 
-echo -e "export HADOOP_BIN_PATH=\$HADOOP_HOME/bin"  >> $ENV_FILE
-echo -e "export HADOOP_SBIN_PATH=\$HADOOP_HOME/sbin"  >> $ENV_FILE
+export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\"
+export set_hadoop_env=done
+" >> $ENV_FILE
 
-echo -e "export HADOOP_CONF_DIR=\$HADOOP_HOME/etc/hadoop"  >> $ENV_FILE
-echo -e "export HADOOP_LOG_DIR=\$HADOOP_HOME/logs"  >> $ENV_FILE
+dos2unix $ENV_FILE
+chmod ugo+x $ENV_FILE
 
-echo -e "export PATH=\$PATH:\$HADOOP_BIN_PATH"  >> $ENV_FILE
-echo -e "export PATH=\$PATH:\$HADOOP_SBIN_PATH"  >> $ENV_FILE
-echo -e "export PATH=\$PATH:\$JAVA_HOME/bin"  >> $ENV_FILE
+grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
 
 source $ENV_FILE
+```
 
-echo -e "export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""  >> $ENV_FILE
+## Configure your Hadoop environment file
 
+In your **Ubuntu** terminal, execute:
+
+```sh
 export LINE="export \"HADOOP_OPTS=\$HADOOP_OPTS -Dhadoop.home='\$HADOOP_HOME'\""
 grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/hadoop-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
 export LINE="export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
 grep -qF "$LINE" $HADOOP_HOME/etc/hadoop/hadoop-env.sh || echo -e $LINE >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
-
-grep -qF "source $ENV_FILE" ~/.bashrc || echo -e "source $ENV_FILE" >> ~/.bashrc
-
 ```
 
-## Configure the core-site.xml file
+## Configure the Hadoop core-site.xml file
 
 In your **Ubuntu** terminal, execute:
 

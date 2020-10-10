@@ -63,11 +63,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/new-step-04
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-04
 ```
 
 ## Extend the YARN environment variables

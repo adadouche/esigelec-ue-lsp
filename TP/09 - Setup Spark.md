@@ -27,11 +27,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-08
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-08
 ```
 
 ## Download the Spark distribution
@@ -47,7 +43,7 @@ In your **Ubuntu** terminal, execute:
 ```sh
 cd ~
 
-wget http://apache.crihan.fr/dist/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
+wget -nc http://apache.crihan.fr/dist/spark/spark-3.0.0-preview2/spark-3.0.0-preview2-bin-hadoop3.2.tgz
 ```
 
 Then execute the following command to move the extracted directory:
@@ -68,17 +64,15 @@ In your **Ubuntu** terminal, execute:
 
 ```sh
 export ENV_FILE=~/esigelec-ue-lsp-hdp/.set_spark_env.sh
+echo \#\!/bin/bash > $ENV_FILE
+echo "
+export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp
 
-rm -f $ENV_FILE
+export SPARK_HOME=\$LSP_HOME/spark-3.0.0
 
-echo -e "#!/bin/bash" >> $ENV_FILE
-
-echo -e "export LSP_HOME=/home/\$USER/esigelec-ue-lsp-hdp" >> $ENV_FILE
-
-echo -e "export SPARK_HOME=\$LSP_HOME/spark-3.0.0" >> $ENV_FILE
-
-echo -e "export PATH=\$PATH:\$SPARK_HOME/bin" >> $ENV_FILE
-echo -e "export PATH=\$PATH:\$SPARK_HOME/sbin" >> $ENV_FILE
+export PATH=\$PATH:\$SPARK_HOME/bin
+export PATH=\$PATH:\$SPARK_HOME/sbin
+" >> $ENV_FILE
 
 source $ENV_FILE
 

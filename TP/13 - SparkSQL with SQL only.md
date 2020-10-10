@@ -32,11 +32,7 @@ Now checkout the current step branch:
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-12
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-12
 ```
 
 ## Start HDFS processes
@@ -88,7 +84,7 @@ First, download the 1500000_Sales_Records file locally and extract it:
 cd $LSP_HOME
 rm  $LSP_HOME/'1500000_Sales_Records.7z'
 
-wget http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
+wget -nc http://eforexcel.com/wp/wp-content/uploads/2017/07/1500000%20Sales%20Records.7z
 
 mv 1500000\ Sales\ Records.7z 1500000_Sales_Records.7z
 

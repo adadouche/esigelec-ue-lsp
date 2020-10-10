@@ -21,18 +21,12 @@ cd ~
 git clone https://github.com/adadouche/esigelec-ue-lsp-hdp.git
 ```
 
-Open an **Ubuntu** terminal and execute:
-
 Now checkout the current step branch:
 
 ```sh
 cd ~/esigelec-ue-lsp-hdp
 
-git pull
-git reset --hard origin/step-01
-git clean -dfq
-
-./.setup.sh
+. ./scripts/git-restore.sh step-01
 ```
 
 ## Start the HDFS processes
